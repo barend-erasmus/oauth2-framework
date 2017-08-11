@@ -69,7 +69,7 @@ export class OAuth2Framework {
         username: string,
         password: string,
         scopes: string[]): Promise<string> {
-            
+
         const self = this;
 
         return co(function* () {
@@ -81,6 +81,10 @@ export class OAuth2Framework {
 
             if (!client) {
                 throw new Error('Invalid client_id');
+            }
+
+            if (client.redirectUris.indexOf(redirect_uri) === -1) {
+                throw new Error('Invalid redirect_uri');
             }
 
             if (grant_type === 'password') {
@@ -95,13 +99,15 @@ export class OAuth2Framework {
 
             if (grant_type === 'authorization_code') {
 
-                const decodedCode: any = yield self.decodeCode(code);
+                const decodedCode: any = yield self.decodeCodeOrAccessToken(code);
 
                 if (!decodedCode) {
                     throw new Error('Invalid code');
                 }
 
-                // TODO: Validate Client Secret
+                if (client.secret !== client_secret) {
+                    throw new Error('Invalid client_secret');
+                }
 
                 // TODO: Validate Redirect Uri
 
@@ -109,6 +115,21 @@ export class OAuth2Framework {
             }
 
 
+        });
+    }
+
+    public validateAccessToken(access_token: string): Promise<boolean> {
+        const self = this;
+
+        return co(function* () {
+
+            const decodedToken: any = yield self.decodeCodeOrAccessToken(access_token);
+
+            if (!decodedToken) {
+                return false;
+            }
+
+            return true;
         });
     }
 
@@ -134,7 +155,7 @@ export class OAuth2Framework {
             });
     }
 
-    private decodeCode(code: string): Promise<string> {
+    private decodeCodeOrAccessToken(code: string): Promise<string> {
         return new Promise((resolve, reject) => {
             jsonwebtoken.verify(code, 'my-secret', (err: Error, decodedCode: any) => {
 

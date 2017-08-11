@@ -140,10 +140,26 @@ describe('Tests', () => {
             }
         });
 
+        it('should throw error given invalid redirect_uri', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
+                },
+                validateCredentials: null
+            });
+
+            try {
+                yield framework.accessTokenRequest('authorization_code', 'code1', 'invalid redirect_uri', 'client_id1', 'client_secret1', null, null, null);
+                throw new Error('Expected Error');
+            } catch (err) {
+                expect(err.message).to.be.equal('Invalid redirect_uri');
+            }
+        });
+
         it('Authorization Code Grant: should throw error given invalid code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null));
+                    return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
                 },
                 validateCredentials: null
             });
@@ -156,10 +172,29 @@ describe('Tests', () => {
             }
         });
 
-        it('Authorization Code Grant: should return access token', function* () {
+        it('Authorization Code Grant: should throw error given invalid client_secret', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
+                },
+                validateCredentials: (client_id: string, username: string, password: string) => {
+                    return Promise.resolve(true);
+                }
+            });
+
+            try {
+                const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+                yield framework.accessTokenRequest('authorization_code', code, 'redirect_uri1', 'client_id1', 'invalid client_secret', null, null, null);
+                throw new Error('Expected Error');
+            } catch (err) {
+                expect(err.message).to.be.equal('Invalid client_secret');
+            }
+        });
+
+        it('Authorization Code Grant: should return access token', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, 'client_secret1', null, ['redirect_uri1']));
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
@@ -176,7 +211,7 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return null given invalid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null));
+                    return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
@@ -191,7 +226,7 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return access token given valid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null));
+                    return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);

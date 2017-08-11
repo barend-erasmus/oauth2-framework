@@ -6,7 +6,8 @@
   "scripts": {
     "test": "tsc & mocha ./src/**/*.test.js",
     "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js",
-    "start": "tsc & node ./src/example.js"
+    "start": "tsc & node ./src/app.js",
+    "docs": "apidoc -i src/ -o apidoc/"
   },
   "repository": {
     "type": "git",
@@ -19,17 +20,18 @@
   },
   "homepage": "https://github.com/barend-erasmus/oauth2-framework#readme",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "co": "^4.6.0",
+    "express": "^4.15.4",
+    "express-handlebars": "^3.0.0",
     "jsonwebtoken": "^7.4.2"
   },
   "devDependencies": {
     "@types/chai": "^4.0.2",
     "@types/express": "^4.0.36",
     "@types/mocha": "^2.2.41",
-    "body-parser": "^1.17.2",
     "chai": "^4.1.1",
     "co-mocha": "^1.2.0",
-    "express": "^4.15.4",
     "mocha": "^3.5.0",
     "tslint": "^5.6.0",
     "typescript": "^2.4.2"
