@@ -16,10 +16,14 @@ app.use('/api/docs', express.static(path.join(__dirname, './../apidoc')));
 app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov-report')));
 
 const framework = new OAuth2Framework({
-    findClient: (clientId: string) => {
-        return Promise.resolve(new Client(null, null, null, ['http://example.com/callback']));
+    findClient: (client_id: string) => {
+        if (client_id === '0zyrWYATtw') {
+            return Promise.resolve(new Client('0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback']));
+        } else {
+            return Promise.resolve(null);
+        }
     },
-    validateCredentials: (clientId: string, username: string, password: string) => {
+    validateCredentials: (client_id: string, username: string, password: string) => {
         if (username.toLowerCase() === 'demo' && password === '123456') {
             return Promise.resolve(true);
         } else {

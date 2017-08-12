@@ -111,8 +111,6 @@ export class OAuth2Framework {
                     throw new Error('Invalid client_secret');
                 }
 
-                // TODO: Validate Redirect Uri
-
                 return self.generateAccessToken(decodedCode.client_id, decodedCode.username, decodedCode.scopes);
             }
 

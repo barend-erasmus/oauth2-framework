@@ -10,6 +10,40 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 * [Source Code](https://github.com/barend-erasmus/oauth2-framework)
 * [Coverage Report](https://oauth2-framework.openservices.co.za/api/coverage/)
 
+### Installation
+
+`npm install --save oauth2-framework`
+
+### Usage
+
+```javascript
+
+import { Client, OAuth2Framework, OAuth2FrameworkRouter } from 'oauth2-framework';
+
+const framework = new OAuth2Framework({
+    findClient: (client_id: string) => {
+        if (client_id === '0zyrWYATtw') {
+            return Promise.resolve(new Client('0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback']));
+        } else {
+            return Promise.resolve(null);
+        }
+    },
+    validateCredentials: (client_id: string, username: string, password: string) => {
+        if (username.toLowerCase() === 'demo' && password === '123456') {
+            return Promise.resolve(true);
+        } else {
+            return Promise.resolve(false);
+        }
+    },
+});
+
+app.use('/', OAuth2FrameworkRouter(framework, null));
+
+app.listen(3000, () => {
+    console.log(`listening on port 3000`);
+});
+```
+
 ## Support
 
 * Authorization Code Grant
