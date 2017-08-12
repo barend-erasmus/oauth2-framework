@@ -4,7 +4,10 @@ import * as jsonwebtoken from 'jsonwebtoken';
 
 // Imports models
 import { Client } from './models/client';
+
+// Exports
 export { Client } from './models/client';
+export { OAuth2FrameworkRouter } from './router';
 
 export class OAuth2Framework {
 
