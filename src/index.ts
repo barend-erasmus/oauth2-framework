@@ -62,7 +62,6 @@ export class OAuth2Framework {
         });
     }
 
-
     public accessTokenRequest(
         grant_type: string,
         code: string,
@@ -117,7 +116,6 @@ export class OAuth2Framework {
                 return self.generateAccessToken(decodedCode.client_id, decodedCode.username, decodedCode.scopes);
             }
 
-
         });
     }
 
@@ -138,23 +136,23 @@ export class OAuth2Framework {
 
     private generateAccessToken(client_id: string, username: string, scopes: string[]): string {
         return jsonwebtoken.sign({
+            client_id,
             partially_authenticated: false,
-            username: username,
-            client_id: client_id,
-            scopes: scopes
+            scopes,
+            username,
         }, 'my-secret', {
-                expiresIn: '60m'
+                expiresIn: '60m',
             });
     }
 
     private generateCode(client_id: string, username: string, scopes: string[]): string {
         return jsonwebtoken.sign({
+            client_id,
             partially_authenticated: true,
-            username: username,
-            client_id: client_id,
-            scopes: scopes
+            scopes,
+            username,
         }, 'my-secret', {
-                expiresIn: '10m'
+                expiresIn: '10m',
             });
     }
 

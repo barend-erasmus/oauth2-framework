@@ -2,8 +2,8 @@
 // https://tools.ietf.org/html/rfc6749
 
 import { expect } from 'chai';
-import 'mocha';
 import 'co-mocha';
+import 'mocha';
 
 import { OAuth2Framework } from './index';
 import { Client } from './models/client';
@@ -12,15 +12,11 @@ describe('Tests', () => {
 
     let framework: OAuth2Framework = null;
 
-    beforeEach(() => {
-
-    });
-
     describe('authorizationRequest', () => {
         it('should throw error given invalid response_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -38,7 +34,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
-                }
+                },
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -51,7 +47,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -67,7 +63,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
                 },
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -85,7 +81,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
-                }
+                },
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -100,7 +96,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
-                }
+                },
             });
 
             const accessToken: string = yield framework.authorizationRequest('token', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -113,7 +109,7 @@ describe('Tests', () => {
         it('should throw error given invalid grant_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -129,7 +125,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -145,7 +141,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
                 },
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -161,7 +157,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, ['redirect_uri1']));
                 },
-                validateCredentials: null
+                validateCredentials: null,
             });
 
             try {
@@ -179,7 +175,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
-                }
+                },
             });
 
             try {
@@ -198,7 +194,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
-                }
+                },
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -215,7 +211,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
-                }
+                },
             });
 
             const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
@@ -230,7 +226,7 @@ describe('Tests', () => {
                 },
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
-                }
+                },
             });
 
             const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);

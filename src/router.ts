@@ -1,11 +1,11 @@
 // Imports
+import * as co from 'co';
 import * as express from 'express';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as Handlebars from 'handlebars';
-import * as co from 'co';
+import * as path from 'path';
 
-import { OAuth2Framework, Client } from './index';
+import { Client, OAuth2Framework } from './index';
 
 export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath: string): express.Router {
     const router = express.Router();
@@ -24,18 +24,18 @@ export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath:
      */
     router.get('/authorize', (req, res) => {
         renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
-            name: 'Demo Application'
+            name: 'Demo Application',
         }, 200);
     });
 
-    router.post('/authorize', function (req, res) {
+    router.post('/authorize', (req, res) => {
         co(function* () {
             const result: string = yield framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, [req.query.scope], req.query.state, req.body.username, req.body.password);
 
             if (!result) {
                 renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
+                    message: 'Invalid login credentials',
                     name: 'Demo Application',
-                    message: 'Invalid login credentials'
                 }, 200);
                 return;
             }
@@ -69,7 +69,7 @@ export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath:
             const accessToken: string = yield framework.accessTokenRequest(req.body.grant_type, req.body.code, req.body.redirect_uri, req.body.client_id, req.body.client_secret, req.body.username, req.body.password, [req.body.scope]);
 
             res.json({
-                access_token: accessToken
+                access_token: accessToken,
             });
         }).catch((err: Error) => {
             res.send(err.message);
@@ -97,7 +97,7 @@ export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath:
             const valid: boolean = yield framework.validateAccessToken(access_token);
 
             res.json({
-                valid: valid
+                valid,
             });
         }).catch((err: Error) => {
             res.send(err.message);
