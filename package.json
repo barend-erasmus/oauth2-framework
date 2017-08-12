@@ -1,8 +1,8 @@
 {
   "name": "oauth2-framework",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "The OAuth 2.0 authorization framework enables a third-party    application to obtain limited access to an HTTP service, either on    behalf of a resource owner by orchestrating an approval interaction    between the resource owner and the HTTP service, or by allowing the    third-party application to obtain access on its own behalf.",
-  "main": "index.js",
+  "main": ".src/index.js",
   "scripts": {
     "test": "tsc & mocha ./src/**/*.test.js",
     "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js",
