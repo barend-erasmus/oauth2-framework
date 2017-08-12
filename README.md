@@ -4,7 +4,7 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 
 ## Getting Started
 
-* [Demo](https://developersworkspace.co.za/projects/oauth2-framework)
+* [Demo](https://oauth2-framework.openservices.co.za/authorize?response_type=code&client_id=0zyrWYATtw&redirect_uri=http://example.com/callback&scope=read&state=yAAOhrFDNH)
 * [API Documentation](https://oauth2-framework.openservices.co.za/api/docs/)
 * [Source Code](https://github.com/barend-erasmus/oauth2-framework)
 * [Coverage Report](https://oauth2-framework.openservices.co.za/api/coverage/)
