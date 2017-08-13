@@ -10,6 +10,8 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 * [Source Code](https://github.com/barend-erasmus/oauth2-framework)
 * [Coverage Report](https://oauth2-framework.openservices.co.za/api/coverage/)
 
+![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/diagram.png)
+
 ### Installation
 
 `npm install --save oauth2-framework`
