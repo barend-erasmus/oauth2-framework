@@ -7,7 +7,13 @@ import * as path from 'path';
 
 import { Client, OAuth2Framework } from './index';
 
-export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath: string): express.Router {
+export function OAuth2FrameworkRouter(
+    framework: OAuth2Framework,
+    loginPagePath: string,
+    forgotPasswordPagePath: string,
+    forgotPasswordSuccessPagePath: string,
+    forgotPasswordFailurePagePath: string
+): express.Router {
     const router = express.Router();
 
     /**
@@ -23,19 +29,34 @@ export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath:
      *
      */
     router.get('/authorize', (req, res) => {
-        renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
-            name: 'Demo Application',
-        }, 200);
+
+        co(function* () {
+
+            const client: Client = yield framework.model.findClient(req.query.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
+                client: client,
+                query: req.query
+            }, 200);
+
+        });
     });
 
     router.post('/authorize', (req, res) => {
         co(function* () {
             const result: string = yield framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, [req.query.scope], req.query.state, req.body.username, req.body.password);
 
+            const client: Client = yield framework.model.findClient(req.query.client_id);
+
             if (!result) {
                 renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
+                    client: client,
                     message: 'Invalid login credentials',
-                    name: 'Demo Application',
+                    query: req.query
                 }, 200);
                 return;
             }
@@ -101,6 +122,51 @@ export function OAuth2FrameworkRouter(framework: OAuth2Framework, loginPagePath:
             });
         }).catch((err: Error) => {
             res.send(err.message);
+        });
+    });
+
+    router.get('/forgot-password', (req, res) => {
+
+        co(function* () {
+
+            const client: Client = yield framework.model.findClient(req.query.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            renderPage(res, forgotPasswordPagePath || path.join(__dirname, 'views/forgot-password.handlebars'), {
+                client: client,
+                query: req.query
+            }, 200);
+
+        });
+    });
+
+    router.post('/forgot-password', (req, res) => {
+
+        co(function* () {
+
+            const client: Client = yield framework.model.findClient(req.query.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            const result: boolean = yield framework.forgotPasswordRequest(req.query.client_id, req.body.username, req.query.response_type, req.query.redirect_uri, req.query.state);
+
+            if (result) {
+                renderPage(res, forgotPasswordSuccessPagePath || path.join(__dirname, 'views/forgot-password-success.handlebars'), {
+                    client: client,
+                    query: req.query
+                }, 200);
+            } else {
+                renderPage(res, forgotPasswordFailurePagePath || path.join(__dirname, 'views/forgot-password-failure.handlebars'), {
+                    client: client,
+                    query: req.query
+                }, 200);
+            }
+
         });
     });
 

@@ -107,6 +107,10 @@ export class OAuth2Framework {
                     throw new Error('Invalid code');
                 }
 
+                if (decodedCode.type !== 'code') {
+                    throw new Error('Invalid code');
+                }
+
                 if (client.secret !== client_secret) {
                     throw new Error('Invalid client_secret');
                 }
@@ -128,15 +132,27 @@ export class OAuth2Framework {
                 return false;
             }
 
+            if (decodedToken.type !== 'access-token') {
+                return false;
+            }
+
             return true;
+        });
+    }
+
+    public forgotPasswordRequest(client_id: string, username: string, response_type: string, redirect_uri: string, state: string): Promise<boolean> {
+        const self = this;
+
+        return co(function* () {
+            return false;
         });
     }
 
     private generateAccessToken(client_id: string, username: string, scopes: string[]): string {
         return jsonwebtoken.sign({
             client_id,
-            partially_authenticated: false,
             scopes,
+            type: 'access-token',
             username,
         }, 'my-secret', {
                 expiresIn: '60m',
@@ -146,8 +162,8 @@ export class OAuth2Framework {
     private generateCode(client_id: string, username: string, scopes: string[]): string {
         return jsonwebtoken.sign({
             client_id,
-            partially_authenticated: true,
             scopes,
+            type: 'code',
             username,
         }, 'my-secret', {
                 expiresIn: '10m',
