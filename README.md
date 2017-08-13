@@ -73,9 +73,9 @@ The OAuth2 Framework Model is used to interface which you'll need to implement i
 
 The OAuth2 Framework Model consists of:
 
-* `findClient: (client_id: string): Promise<Client>` - Will be used to find a Client by its id.
-* `sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string): Promise<boolean>` - Will be used to send the forgot password email and should return `true` on success and `false`  on failure.
-* `validateCredentials: (client_id: string, username: string, password: string): Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
+* `findClient: (client_id: string) => Promise<Client>` - Will be used to find a Client by its id.
+* `sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>` - Will be used to send the forgot password email and should return `true` on success and `false`  on failure.
+* `validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
 
 ## Supported Grant Types
 
