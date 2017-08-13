@@ -60,4 +60,6 @@ typings/
 *.js
 *.js.map
 
+*.d.ts
+
 apidoc/
