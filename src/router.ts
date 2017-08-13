@@ -13,7 +13,7 @@ export function OAuth2FrameworkRouter(
     forgotPasswordPagePath: string,
     forgotPasswordSuccessPagePath: string,
     forgotPasswordFailurePagePath: string,
-    resetPasswordPagePath: string
+    resetPasswordPagePath: string,
 ): express.Router {
     const router = express.Router();
 
@@ -40,8 +40,8 @@ export function OAuth2FrameworkRouter(
             }
 
             renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
-                client: client,
-                query: req.query
+                client,
+                query: req.query,
             }, 200);
 
         }).catch((err: Error) => {
@@ -57,9 +57,9 @@ export function OAuth2FrameworkRouter(
 
             if (!result) {
                 renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
-                    client: client,
+                    client,
                     message: 'Invalid login credentials',
-                    query: req.query
+                    query: req.query,
                 }, 200);
                 return;
             }
@@ -139,8 +139,8 @@ export function OAuth2FrameworkRouter(
             }
 
             renderPage(res, forgotPasswordPagePath || path.join(__dirname, 'views/forgot-password.handlebars'), {
-                client: client,
-                query: req.query
+                client,
+                query: req.query,
             }, 200);
 
         }).catch((err: Error) => {
@@ -162,13 +162,13 @@ export function OAuth2FrameworkRouter(
 
             if (result) {
                 renderPage(res, forgotPasswordSuccessPagePath || path.join(__dirname, 'views/forgot-password-success.handlebars'), {
-                    client: client,
-                    query: req.query
+                    client,
+                    query: req.query,
                 }, 200);
             } else {
                 renderPage(res, forgotPasswordFailurePagePath || path.join(__dirname, 'views/forgot-password-failure.handlebars'), {
-                    client: client,
-                    query: req.query
+                    client,
+                    query: req.query,
                 }, 200);
             }
 
@@ -194,8 +194,8 @@ export function OAuth2FrameworkRouter(
             }
 
             renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
-                client: client,
-                query: req.query
+                client,
+                query: req.query,
             }, 200);
         }).catch((err: Error) => {
             res.status(500).send(err.message);
@@ -224,8 +224,8 @@ export function OAuth2FrameworkRouter(
                 res.redirect(decodedToken.return_url);
             } else {
                 renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
-                    client: client,
-                    query: req.query
+                    client,
+                    query: req.query,
                 }, 200);
             }
         }).catch((err: Error) => {

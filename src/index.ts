@@ -217,7 +217,7 @@ export class OAuth2Framework {
     private generateResetPasswordToken(client_id: string, username: string, return_url: string): string {
         return jsonwebtoken.sign({
             client_id,
-            return_url: return_url,
+            return_url,
             type: 'reset-password',
             username,
         }, 'my-secret', {
