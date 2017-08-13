@@ -16,6 +16,7 @@ describe('Tests', () => {
         it('should throw error given invalid response_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -30,8 +31,9 @@ describe('Tests', () => {
         it('should return null given invalid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
                 },
@@ -47,6 +49,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -61,8 +64,9 @@ describe('Tests', () => {
         it('should throw error given invalid redirect_uri', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -77,8 +81,9 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -92,8 +97,9 @@ describe('Tests', () => {
         it('Implicit Grant: should return access_token', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -109,6 +115,7 @@ describe('Tests', () => {
         it('should throw error given invalid grant_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -125,6 +132,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -139,8 +147,9 @@ describe('Tests', () => {
         it('should throw error given invalid redirect_uri', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -155,8 +164,9 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given invalid code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
 
@@ -168,11 +178,32 @@ describe('Tests', () => {
             }
         });
 
+        it('Authorization Code Grant: should throw error given valid access token instead of valid code', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                },
+                sendForgotPasswordEmail: null,
+                validateCredentials: (client_id: string, username: string, password: string) => {
+                    return Promise.resolve(true);
+                },
+            });
+
+            try {
+                const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
+                yield framework.accessTokenRequest('authorization_code', accessToken, 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
+                throw new Error('Expected Error');
+            } catch (err) {
+                expect(err.message).to.be.equal('Invalid code');
+            }
+        });
+
         it('Authorization Code Grant: should throw error given invalid client_secret', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -190,8 +221,9 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return access token', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -207,8 +239,9 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return null given invalid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
                 },
@@ -222,8 +255,9 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return access token given valid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1']));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },

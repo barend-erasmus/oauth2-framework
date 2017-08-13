@@ -28,6 +28,12 @@ const framework = new OAuth2Framework({
             return Promise.resolve(null);
         }
     },
+    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
+        
+        // TODO: Send email via STMP, SendGrid, Mandrill
+
+        return Promise.resolve(true);
+    },
     validateCredentials: (client_id: string, username: string, password: string) => {
         if (username.toLowerCase() === 'demo' && password === '123456') {
             return Promise.resolve(true);
@@ -37,6 +43,8 @@ const framework = new OAuth2Framework({
     },
 });
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use('/', OAuth2FrameworkRouter(framework, null));
 
 app.listen(3000, () => {
@@ -44,7 +52,30 @@ app.listen(3000, () => {
 });
 ```
 
-## Support
+### Specifications
+
+**Client**
+
+The Client consists of:
+
+* `name: string` - Will be displayed on login, registration and forgot password pages.
+* `id: string` - Will be used to  identify the client.
+* `secret: string` - Will be used in various grant types.
+* `allowedScopes: string[]` - Will be used to validate an authorization request.
+* `redirectUris: string[]` - Will be used to validate an authorization request.
+* `allowForgotPassword: boolean` - Will enable or disable the forgot password functionality.
+
+**OAuth2 Framework Model**
+
+The OAuth2 Framework Model is used to interface which you'll need to implement in order for the framework to communicate with your database or API.
+
+The OAuth2 Framework Model consists of:
+
+* `findClient: (client_id: string): Promise<Client>` - Will be used to find a Client by its id.
+* `sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string): Promise<boolean>` - Will be used to send the forgot password email and should return `true` on success and `false`  on failure.
+* `validateCredentials: (client_id: string, username: string, password: string): Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
+
+## Supported Grant Types
 
 * Authorization Code Grant
 * Implicit Grant

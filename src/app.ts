@@ -18,10 +18,13 @@ app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov
 const framework = new OAuth2Framework({
     findClient: (client_id: string) => {
         if (client_id === '0zyrWYATtw') {
-            return Promise.resolve(new Client('Demo Application', '0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback']));
+            return Promise.resolve(new Client('Demo Application', '0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback'], true));
         } else {
             return Promise.resolve(null);
         }
+    },
+    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
+        return Promise.resolve(true);
     },
     validateCredentials: (client_id: string, username: string, password: string) => {
         if (username.toLowerCase() === 'demo' && password === '123456') {

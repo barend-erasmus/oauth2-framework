@@ -13,6 +13,7 @@ export class OAuth2Framework {
 
     constructor(public model: {
         findClient: (client_id: string) => Promise<Client>
+        sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
     }) {
 
@@ -144,8 +145,37 @@ export class OAuth2Framework {
         const self = this;
 
         return co(function* () {
-            return false;
+
+            const client: Client = yield self.model.findClient(client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            if (!client.allowForgotPassword) {
+                throw new Error('Function not enabled for client');
+            }
+
+            const returnUrl = `/authorize?authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+            const resetPasswordToken = self.generateResetPasswordToken(client_id, username, returnUrl);
+
+            const resetPasswordUrl = `/reset-password?token=${resetPasswordToken}`;
+
+            const result = yield self.model.sendForgotPasswordEmail(client_id, username, resetPasswordUrl);
+
+            return result;
         });
+    }
+
+    private generateResetPasswordToken(client_id: string, username: string, return_url: string): string {
+        return jsonwebtoken.sign({
+            client_id,
+            return_url: return_url,
+            type: 'reset-password',
+            username,
+        }, 'my-secret', {
+                expiresIn: '60m',
+            });
     }
 
     private generateAccessToken(client_id: string, username: string, scopes: string[]): string {
