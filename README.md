@@ -30,6 +30,9 @@ const framework = new OAuth2Framework({
             return Promise.resolve(null);
         }
     },
+    resetPassword: (client_id: string, username: string, password: string) => {
+        return Promise.resolve(true);
+    },
     sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
         
         // TODO: Send email via STMP, SendGrid, Mandrill
@@ -47,7 +50,7 @@ const framework = new OAuth2Framework({
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use('/', OAuth2FrameworkRouter(framework, null, null, null, null));
+app.use('/', OAuth2FrameworkRouter(framework, null, null, null, null, null));
 
 app.listen(3000, () => {
     console.log(`listening on port 3000`);
@@ -74,6 +77,7 @@ The OAuth2 Framework Model is used to interface which you'll need to implement i
 The OAuth2 Framework Model consists of:
 
 * `findClient: (client_id: string) => Promise<Client>` - Will be used to find a Client by its id.
+* `resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,` - Will be used to reset the user's password.
 * `sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>` - Will be used to send the forgot password email and should return `true` on success and `false`  on failure.
 * `validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
 
@@ -82,5 +86,3 @@ The OAuth2 Framework Model consists of:
 * Authorization Code Grant
 * Implicit Grant
 * Resource Owner Password Credentials Grant
-
-

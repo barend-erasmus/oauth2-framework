@@ -13,6 +13,7 @@ export class OAuth2Framework {
 
     constructor(public model: {
         findClient: (client_id: string) => Promise<Client>
+        resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,
         sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
     }) {
@@ -102,7 +103,7 @@ export class OAuth2Framework {
 
             if (grant_type === 'authorization_code') {
 
-                const decodedCode: any = yield self.decodeCodeOrAccessToken(code);
+                const decodedCode: any = yield self.decodeJWT(code);
 
                 if (!decodedCode) {
                     throw new Error('Invalid code');
@@ -127,7 +128,7 @@ export class OAuth2Framework {
 
         return co(function* () {
 
-            const decodedToken: any = yield self.decodeCodeOrAccessToken(access_token);
+            const decodedToken: any = yield self.decodeJWT(access_token);
 
             if (!decodedToken) {
                 return false;
@@ -138,6 +139,25 @@ export class OAuth2Framework {
             }
 
             return true;
+        });
+    }
+
+    public decodeResetPasswordToken(token: string): Promise<any> {
+        const self = this;
+
+        return co(function* () {
+
+            const decodedToken: any = yield self.decodeJWT(token);
+
+            if (!decodedToken) {
+                return null;
+            }
+
+            if (decodedToken.type !== 'reset-password') {
+                return null;
+            }
+
+            return decodedToken;
         });
     }
 
@@ -156,12 +176,39 @@ export class OAuth2Framework {
                 throw new Error('Function not enabled for client');
             }
 
-            const returnUrl = `/authorize?authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+            const returnUrl = `/authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
             const resetPasswordToken = self.generateResetPasswordToken(client_id, username, returnUrl);
 
             const resetPasswordUrl = `/reset-password?token=${resetPasswordToken}`;
 
             const result = yield self.model.sendForgotPasswordEmail(client_id, username, resetPasswordUrl);
+
+            return result;
+        });
+    }
+
+    public resetPasswordRequest(token: string, password: string): Promise<boolean> {
+        const self = this;
+
+        return co(function* () {
+
+            const decodedToken: any = yield self.decodeResetPasswordToken(token);
+
+            if (!decodedToken) {
+                throw new Error('Invalid token');
+            }
+
+            if (decodedToken.type !== 'reset-password') {
+                throw new Error('Invalid token');
+            }
+
+            const client: Client = yield self.model.findClient(decodedToken.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            const result = yield self.model.resetPassword(decodedToken.client_id, decodedToken.username, password);
 
             return result;
         });
@@ -200,9 +247,9 @@ export class OAuth2Framework {
             });
     }
 
-    private decodeCodeOrAccessToken(code: string): Promise<string> {
+    private decodeJWT(jwt: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            jsonwebtoken.verify(code, 'my-secret', (err: Error, decodedCode: any) => {
+            jsonwebtoken.verify(jwt, 'my-secret', (err: Error, decodedCode: any) => {
 
                 if (err) {
                     resolve(null);

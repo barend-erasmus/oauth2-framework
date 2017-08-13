@@ -12,7 +12,8 @@ export function OAuth2FrameworkRouter(
     loginPagePath: string,
     forgotPasswordPagePath: string,
     forgotPasswordSuccessPagePath: string,
-    forgotPasswordFailurePagePath: string
+    forgotPasswordFailurePagePath: string,
+    resetPasswordPagePath: string
 ): express.Router {
     const router = express.Router();
 
@@ -43,6 +44,8 @@ export function OAuth2FrameworkRouter(
                 query: req.query
             }, 200);
 
+        }).catch((err: Error) => {
+            res.status(500).send(err.message);
         });
     });
 
@@ -67,7 +70,7 @@ export function OAuth2FrameworkRouter(
                 res.redirect(`${req.query.redirect_uri}?access_token=${result}&state=${req.query.state}`);
             }
         }).catch((err: Error) => {
-            res.send(err.message);
+            res.status(500).send(err.message);
         });
     });
 
@@ -93,7 +96,7 @@ export function OAuth2FrameworkRouter(
                 access_token: accessToken,
             });
         }).catch((err: Error) => {
-            res.send(err.message);
+            res.status(500).send(err.message);
         });
     });
 
@@ -121,7 +124,7 @@ export function OAuth2FrameworkRouter(
                 valid,
             });
         }).catch((err: Error) => {
-            res.send(err.message);
+            res.status(500).send(err.message);
         });
     });
 
@@ -140,6 +143,8 @@ export function OAuth2FrameworkRouter(
                 query: req.query
             }, 200);
 
+        }).catch((err: Error) => {
+            res.status(500).send(err.message);
         });
     });
 
@@ -167,6 +172,64 @@ export function OAuth2FrameworkRouter(
                 }, 200);
             }
 
+        }).catch((err: Error) => {
+            res.status(500).send(err.message);
+        });
+    });
+
+    router.get('/reset-password', (req, res) => {
+
+        co(function* () {
+
+            const decodedToken: any = yield framework.decodeResetPasswordToken(req.query.token);
+
+            if (!decodedToken) {
+                throw new Error('Invalid token');
+            }
+
+            const client: Client = yield framework.model.findClient(decodedToken.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
+                client: client,
+                query: req.query
+            }, 200);
+        }).catch((err: Error) => {
+            res.status(500).send(err.message);
+        });
+    });
+
+    router.post('/reset-password', (req, res) => {
+
+        co(function* () {
+
+            const decodedToken: any = yield framework.decodeResetPasswordToken(req.query.token);
+
+            if (!decodedToken) {
+                throw new Error('Invalid token');
+            }
+
+            const client: Client = yield framework.model.findClient(decodedToken.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            const result: boolean = yield framework.resetPasswordRequest(req.query.token, req.body.password);
+
+            if (result) {
+                res.redirect(decodedToken.return_url);
+            } else {
+                renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
+                    client: client,
+                    query: req.query
+                }, 200);
+            }
+        }).catch((err: Error) => {
+            res.status(500).send(err.message);
         });
     });
 

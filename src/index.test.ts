@@ -16,6 +16,7 @@ describe('Tests', () => {
         it('should throw error given invalid response_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -33,6 +34,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
@@ -49,6 +51,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -66,6 +69,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -83,6 +87,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
@@ -99,6 +104,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
@@ -115,6 +121,7 @@ describe('Tests', () => {
         it('should throw error given invalid grant_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -132,6 +139,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -149,6 +157,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -166,6 +175,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: null,
             });
@@ -183,6 +193,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
@@ -203,6 +214,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
@@ -223,6 +235,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
@@ -241,6 +254,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
@@ -257,6 +271,7 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
                 },
+                resetPassword: null,
                 sendForgotPasswordEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
