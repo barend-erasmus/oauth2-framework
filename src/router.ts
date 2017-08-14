@@ -155,9 +155,13 @@ export function OAuth2FrameworkRouter(
 
             const valid: boolean = yield framework.validateAccessToken(access_token);
 
-            const decodedToken: string = yield framework.decodeJWT(access_token);
-            
-            res.json(decodedToken);
+            if (valid) {
+                const decodedToken: string = yield framework.decodeJWT(access_token);
+
+                res.json(decodedToken);
+            } else {
+                res.json(null);
+            }
         }).catch((err: Error) => {
             res.status(500).send(err.message);
         });
