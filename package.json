@@ -1,7 +1,7 @@
 {
   "name": "oauth2-framework",
   "version": "0.3.2",
-  "description": "The OAuth 2.0 authorization framework enables a third-party    application to obtain limited access to an HTTP service, either on    behalf of a resource owner by orchestrating an approval interaction    between the resource owner and the HTTP service, or by allowing the    third-party application to obtain access on its own behalf.",
+  "description": "The OAuth 2.0 authorization framework enables a third-party application to obtain limited access to an HTTP service, either on behalf of a resource owner by orchestrating an approval interaction  between the resource owner and the HTTP service, or by allowing the third-party application to obtain access on its own behalf.",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "scripts": {
@@ -10,7 +10,7 @@
     "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js",
     "start": "tsc & node ./src/app.js",
     "docs": "apidoc -i src/ -o apidoc/",
-    "deploy": "tsc & apidoc -i src/ -o apidoc/ & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js & ssh-deployer -f deploy.json --host developersworkspace.co.za --username username --password password --workspace ./"
+    "deploy": "tsc & apidoc -i src/ -o apidoc/ & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js & ssh-deployer -f deploy.json --host developersworkspace.co.za --username root --password MidericK96 --workspace ./"
   },
   "repository": {
     "type": "git",

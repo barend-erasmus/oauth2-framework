@@ -214,6 +214,20 @@ export class OAuth2Framework {
         });
     }
 
+    public decodeJWT(jwt: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            jsonwebtoken.verify(jwt, 'my-secret', (err: Error, decodedCode: any) => {
+
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+
+                resolve(decodedCode);
+            });
+        });
+    }
+
     private generateResetPasswordToken(client_id: string, username: string, return_url: string): string {
         return jsonwebtoken.sign({
             client_id,
@@ -245,19 +259,5 @@ export class OAuth2Framework {
         }, 'my-secret', {
                 expiresIn: '10m',
             });
-    }
-
-    private decodeJWT(jwt: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            jsonwebtoken.verify(jwt, 'my-secret', (err: Error, decodedCode: any) => {
-
-                if (err) {
-                    resolve(null);
-                    return;
-                }
-
-                resolve(decodedCode);
-            });
-        });
     }
 }

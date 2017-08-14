@@ -135,6 +135,34 @@ export function OAuth2FrameworkRouter(
         });
     });
 
+    /**
+     * @api {get} /user User Request
+     * @apiName UserRequest
+     * @apiGroup OAuth2
+     *
+     * @apiHeader {string} authorization Bearer Token.
+     */
+    router.get('/user', (req, res) => {
+        co(function* () {
+
+            const authorizationHeader: string = req.get('Authorization');
+
+            if (!authorizationHeader || authorizationHeader.split(' ')[0].toLowerCase() !== 'bearer') {
+                throw new Error('Invalid header');
+            }
+
+            const access_token = authorizationHeader.split(' ')[1];
+
+            const valid: boolean = yield framework.validateAccessToken(access_token);
+
+            const decodedToken: string = yield framework.decodeJWT(access_token);
+            
+            res.json(decodedToken);
+        }).catch((err: Error) => {
+            res.status(500).send(err.message);
+        });
+    });
+
     router.get('/forgot-password', (req, res) => {
 
         co(function* () {
