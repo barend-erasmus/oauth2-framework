@@ -8,7 +8,12 @@ import * as path from 'path';
 import { Client, OAuth2Framework } from './index';
 
 export function OAuth2FrameworkRouter(
-    framework: OAuth2Framework,
+    model: {
+        findClient: (client_id: string) => Promise<Client>
+        resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,
+        sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
+        validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
+    },
     loginPagePath: string,
     forgotPasswordPagePath: string,
     forgotPasswordSuccessPagePath: string,
@@ -16,6 +21,8 @@ export function OAuth2FrameworkRouter(
     resetPasswordPagePath: string,
 ): express.Router {
     const router = express.Router();
+
+    const framework: OAuth2Framework = new OAuth2Framework(model);
 
     /**
      * @api {get} /authorize Authorization Request

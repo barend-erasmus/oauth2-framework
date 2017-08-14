@@ -20,9 +20,9 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 
 ```javascript
 
-import { Client, OAuth2Framework, OAuth2FrameworkRouter } from 'oauth2-framework';
+import { Client, OAuth2FrameworkRouter } from 'oauth2-framework';
 
-const framework = new OAuth2Framework({
+const model: any = {
     findClient: (client_id: string) => {
         if (client_id === '0zyrWYATtw') {
             return Promise.resolve(new Client('0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback'], true));
@@ -46,11 +46,11 @@ const framework = new OAuth2Framework({
             return Promise.resolve(false);
         }
     },
-});
+};
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use('/', OAuth2FrameworkRouter(framework, null, null, null, null, null));
+app.use('/', OAuth2FrameworkRouter(model, null, null, null, null, null));
 
 app.listen(3000, () => {
     console.log(`listening on port 3000`);

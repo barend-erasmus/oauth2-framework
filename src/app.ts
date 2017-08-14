@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use('/api/docs', express.static(path.join(__dirname, './../apidoc')));
 app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov-report')));
 
-const framework = new OAuth2Framework({
+const model: any = {
     findClient: (client_id: string) => {
         if (client_id === '0zyrWYATtw') {
             return Promise.resolve(new Client('Demo Application', '0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback'], true));
@@ -72,9 +72,9 @@ const framework = new OAuth2Framework({
             return Promise.resolve(false);
         }
     },
-});
+};
 
-app.use('/', OAuth2FrameworkRouter(framework, null, null, null, null, null));
+app.use('/', OAuth2FrameworkRouter(model, null, null, null, null, null));
 
 app.listen(argv.port || 3000, () => {
     console.log(`listening on port ${argv.port || 3000}`);
