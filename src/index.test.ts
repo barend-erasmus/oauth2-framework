@@ -283,4 +283,128 @@ describe('Tests', () => {
             expect(accessToken).to.be.not.null;
         });
     });
+
+    describe('validateAccessToken', () => {
+        it('should return false given invalid token', function* () {
+            framework = new OAuth2Framework({
+                findClient: null,
+                resetPassword: null,
+                sendForgotPasswordEmail: null,
+                validateCredentials: null,
+            });
+
+            const result = yield framework.validateAccessToken('invalid token');
+            expect(result).to.be.false;
+        });
+
+        it('should return false given code', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null));
+                },
+                resetPassword: null,
+                sendForgotPasswordEmail: null,
+                validateCredentials: (client_id: string, username: string, password: string) => {
+                    return Promise.resolve(true);
+                },
+            });
+
+            const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+
+            const result = yield framework.validateAccessToken(code);
+            expect(result).to.be.false;
+        });
+
+        it('should return true given valid token', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                },
+                resetPassword: null,
+                sendForgotPasswordEmail: null,
+                validateCredentials: (client_id: string, username: string, password: string) => {
+                    return Promise.resolve(true);
+                },
+            });
+
+            const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
+
+            const result = yield framework.validateAccessToken(accessToken);
+            expect(result).to.be.true;
+        });
+    });
+
+    describe('forgotPasswordRequest', () => {
+        it('should throw error given invalid client_id', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(null);
+                },
+                resetPassword: null,
+                sendForgotPasswordEmail: null,
+                validateCredentials: null,
+            });
+
+            try {
+                yield framework.forgotPasswordRequest('invalid client_id', 'username1', 'response_type1', 'redirect_uri1', '');
+                throw new Error('Expected Error');
+            } catch (err) {
+                expect(err.message).to.be.equal('Invalid client_id');
+            }
+        });
+
+        it('should throw error given client disabled forgot password', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, null, false));
+                },
+                resetPassword: null,
+                sendForgotPasswordEmail: null,
+                validateCredentials: null,
+            });
+
+            try {
+                yield framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
+                throw new Error('Expected Error');
+            } catch (err) {
+                expect(err.message).to.be.equal('Function not enabled for client');
+            }
+        });
+
+        it('should return false given sendForgotPasswordEmail fails', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, null, true));
+                },
+                resetPassword: null,
+                sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
+                    return Promise.resolve(false);
+                },
+                validateCredentials: null,
+            });
+
+            const result = yield framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
+            expect(result).to.be.false;
+
+        });
+
+        it('should return true given sendForgotPasswordEmail succeeds', function* () {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, null, true));
+                },
+                resetPassword: null,
+                sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
+                    return Promise.resolve(true);
+                },
+                validateCredentials: null,
+            });
+
+            const result = yield framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
+            expect(result).to.be.true;
+
+        });
+
+    });
+
 });
