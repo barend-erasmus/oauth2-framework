@@ -59,7 +59,7 @@ app.listen(3000, () => {
 
 ## Specifications
 
-**Client**
+### Client
 
 The Client consists of:
 
@@ -70,7 +70,7 @@ The Client consists of:
 * `redirectUris: string[]` - Will be used to validate an authorization request.
 * `allowForgotPassword: boolean` - Will enable or disable the forgot password functionality.
 
-**OAuth2 Framework Model**
+### OAuth2 Framework Model
 
 The OAuth2 Framework Model is used to interface which you'll need to implement in order for the framework to communicate with your database or API.
 
@@ -83,8 +83,17 @@ The OAuth2 Framework Model consists of:
 
 ## Customizing Templates
 
+![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/flow-diagram.png)
+
 ```javascript
-app.use('/', OAuth2FrameworkRouter(model, 'path of login template', 'path of forgot-password template', 'path of forgot-password-success template', 'path of forgot-password-failure template', 'path of reset-password template'));
+app.use('/', OAuth2FrameworkRouter(
+    model,
+    'path of login template',
+    'path of forgot-password template',
+    'path of forgot-password-success template',
+    'path of forgot-password-failure template',
+    'path of reset-password template'
+));
 ```
 
 OAuth2 Framework uses `handlebars` as a templating engine and each template get given the same model which is defined below.
@@ -97,11 +106,29 @@ OAuth2 Framework uses `handlebars` as a templating engine and each template get 
 }
 ```
 
-![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/flow-diagram.png)
-
 ### Login Template
 
-Coming soon...
+This template has the following requirements:
+
+* Must be a `POST`.
+* Must have a field `username`.
+* Must have a field `password`.
+
+```html
+<form method="post">
+    <div>
+        <label>Username:</label>
+        <input type="text" name="username">
+    </div>
+    <div>
+        <label>Password</label>
+        <input type="password" name="password">
+    </div>
+    <div class="button">
+        <button type="submit">Login</button>
+    </div>
+</form>
+```
 
 ### Forgot Password Template
 
