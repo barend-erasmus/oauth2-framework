@@ -12,11 +12,11 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 
 ![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/diagram.png)
 
-### Installation
+## Installation
 
 `npm install --save oauth2-framework`
 
-### Usage
+## Usage
 
 ```javascript
 
@@ -57,7 +57,7 @@ app.listen(3000, () => {
 });
 ```
 
-### Specifications
+## Specifications
 
 **Client**
 
@@ -80,6 +80,44 @@ The OAuth2 Framework Model consists of:
 * `resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,` - Will be used to reset the user's password.
 * `sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>` - Will be used to send the forgot password email and should return `true` on success and `false`  on failure.
 * `validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
+
+## Customizing Templates
+
+```javascript
+app.use('/', OAuth2FrameworkRouter(model, 'path of login template', 'path of forgot-password template', 'path of forgot-password-success template', 'path of forgot-password-failure template', 'path of reset-password template'));
+```
+
+OAuth2 Framework uses `handlebars` as a templating engine and each template get given the same model which is defined below.
+
+```
+{
+    "client": client,
+    "message": null,
+    "query": req.query,
+}
+```
+
+![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/flow-diagram.png)
+
+### Login Template
+
+Coming soon...
+
+### Forgot Password Template
+
+Coming soon...
+
+### Forgot Password Success Template
+
+Coming soon...
+
+### Forgot Password Failure Template
+
+Coming soon...
+
+### Reset Password Template
+
+Coming soon...
 
 ## Supported Grant Types
 
