@@ -41,32 +41,32 @@ const model: any = {
         return Promise.resolve(true);
     },
     sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
-        return co(function*() {
-            
+        return co(function* () {
+
             if (!validateEmailAddress(username)) {
                 return true;
             }
-            
+
             const domain = 'https://oauth2-framework.openservices.co.za';
             const subject = 'OAuth2 Framework - Forgot Password';
             const html = `<div> We heard that you lost your OAuth2 Framework password. Sorry about that!<br><br>But don’t worry! You can use the following link within the next day to reset your password:<br><br><a href="${domain}${resetPasswordUrl}" target="_blank">Reset Password</a><br><br>If you don’t use this link within 3 hours, it will expire.<br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
-            
+
             return sendEmail(username, subject, html);
         });
     },
     sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => {
-        return co(function*() {
+        return co(function* () {
 
             if (!validateEmailAddress(emailAddress)) {
                 return true;
             }
-            
+
             // const domain = 'https://oauth2-framework.openservices.co.za';
             const domain = 'http://localhost:3000';
 
             const subject = 'OAuth2 Framework - Verification';
             const html = `<div> Thank you for registering on OAuth2 Framework. <br><br><a href="${domain}${verificationUrl}" target="_blank">Verify Email</a> <br><br>If you don’t use this link within 3 hours, it will expire. <br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
-            
+
             return sendEmail(emailAddress, subject, html);
         });
     },
@@ -86,7 +86,7 @@ function validateEmailAddress(emailAddress: string): boolean {
     }
 
     return true;
-} 
+}
 
 function sendEmail(toAddress: string, subject: string, html: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -115,7 +115,19 @@ function sendEmail(toAddress: string, subject: string, html: string): Promise<bo
     });
 }
 
-app.use('/', OAuth2FrameworkRouter(model, null, null, null, null, null, null));
+app.use('/', OAuth2FrameworkRouter(
+    model,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+));
 
 app.listen(argv.port || 3000, () => {
     console.log(`listening on port ${argv.port || 3000}`);

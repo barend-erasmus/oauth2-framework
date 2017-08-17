@@ -163,6 +163,25 @@ export class OAuth2Framework {
         });
     }
 
+    public decodeEmailVerificationToken(token: string): Promise<any> {
+        const self = this;
+
+        return co(function* () {
+
+            const decodedToken: any = yield self.decodeJWT(token);
+
+            if (!decodedToken) {
+                return null;
+            }
+
+            if (decodedToken.type !== 'email-verification') {
+                return null;
+            }
+
+            return decodedToken;
+        });
+    }
+
     public forgotPasswordRequest(client_id: string, username: string, response_type: string, redirect_uri: string, state: string): Promise<boolean> {
         const self = this;
 
@@ -186,6 +205,37 @@ export class OAuth2Framework {
             const result = yield self.model.sendForgotPasswordEmail(client_id, username, resetPasswordUrl);
 
             return result;
+        });
+    }
+
+    public emailVerificationRequest(token: string): Promise<boolean> {
+        const self = this;
+
+        return co(function* () {
+
+            const decodedToken: any = yield self.decodeEmailVerificationToken(token);
+
+            if (!decodedToken) {
+                throw new Error('Invalid token');
+            }
+
+            const client: Client = yield self.model.findClient(decodedToken.client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            if (!client.allowRegister) {
+                throw new Error('Function not enabled for client');
+            }
+
+            // TODO: Call verfication method on model
+
+            return true;
         });
     }
 
@@ -231,14 +281,14 @@ export class OAuth2Framework {
                 throw new Error('Invalid token');
             }
 
-            if (decodedToken.type !== 'reset-password') {
-                throw new Error('Invalid token');
-            }
-
             const client: Client = yield self.model.findClient(decodedToken.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
+            }
+
+            if (!client.allowForgotPassword) {
+                throw new Error('Function not enabled for client');
             }
 
             const result = yield self.model.resetPassword(decodedToken.client_id, decodedToken.username, password);
@@ -276,7 +326,7 @@ export class OAuth2Framework {
         return jsonwebtoken.sign({
             client_id,
             return_url,
-            type: 'email-verfication',
+            type: 'email-verification',
             username,
         }, 'my-secret', {
                 expiresIn: '60m',

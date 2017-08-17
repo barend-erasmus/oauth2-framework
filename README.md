@@ -25,7 +25,7 @@ import { Client, OAuth2FrameworkRouter } from 'oauth2-framework';
 const model: any = {
     findClient: (client_id: string) => {
         if (client_id === '0zyrWYATtw') {
-            return Promise.resolve(new Client('0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback'], true));
+            return Promise.resolve(new Client('0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback'], true, true));
         } else {
             return Promise.resolve(null);
         }
@@ -35,7 +35,7 @@ const model: any = {
     },
     sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
         
-        // TODO: Send email via STMP, SendGrid, Mandrill
+        // TODO: Send email via STMP, SendGrid or Mandrill
 
         return Promise.resolve(true);
     },
@@ -50,7 +50,20 @@ const model: any = {
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use('/', OAuth2FrameworkRouter(model, null, null, null, null, null));
+
+app.use('/', OAuth2FrameworkRouter(
+    model,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+));
 
 app.listen(3000, () => {
     console.log(`listening on port 3000`);
@@ -69,6 +82,7 @@ The Client consists of:
 * `allowedScopes: string[]` - Will be used to validate an authorization request.
 * `redirectUris: string[]` - Will be used to validate an authorization request.
 * `allowForgotPassword: boolean` - Will enable or disable the forgot password functionality.
+* `allowRegister: boolean` - Will enable or disable the register functionality.
 
 ### OAuth2 Framework Model
 
@@ -93,6 +107,11 @@ app.use('/', OAuth2FrameworkRouter(
     'path of forgot-password-success template',
     'path of forgot-password-failure template',
     'path of reset-password template'
+    'path of register template',
+    'path of register-success template',
+    'path of register-failure template',
+    'path of email-verification-success template',
+    'path of email-verification-failure template',
 ));
 ```
 
@@ -143,6 +162,26 @@ Coming soon...
 Coming soon...
 
 ### Reset Password Template
+
+Coming soon...
+
+### Register Template
+
+Coming soon...
+
+### Register Success Template
+
+Coming soon...
+
+### Register Failure Template
+
+Coming soon...
+
+### Email Verification Success Template
+
+Coming soon...
+
+### Email Verification Failure Template
 
 Coming soon...
 
