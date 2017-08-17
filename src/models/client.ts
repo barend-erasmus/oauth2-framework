@@ -6,6 +6,7 @@ export class Client {
         public allowedScopes: string[],
         public redirectUris: string[],
         public allowForgotPassword: boolean,
+        public allowRegister: boolean,
     ) {
 
     }

@@ -16,8 +16,10 @@ describe('Tests', () => {
         it('should throw error given invalid response_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -32,10 +34,12 @@ describe('Tests', () => {
         it('should return null given invalid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
                 },
@@ -51,8 +55,10 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -67,10 +73,12 @@ describe('Tests', () => {
         it('should throw error given invalid redirect_uri', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -85,10 +93,12 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -102,10 +112,12 @@ describe('Tests', () => {
         it('Implicit Grant: should return access_token', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -121,8 +133,10 @@ describe('Tests', () => {
         it('should throw error given invalid grant_type', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -139,8 +153,10 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -155,10 +171,12 @@ describe('Tests', () => {
         it('should throw error given invalid redirect_uri', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -173,10 +191,12 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given invalid code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -191,10 +211,12 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given valid access token instead of valid code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -212,10 +234,12 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given invalid client_secret', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -233,10 +257,12 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return access token', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -252,10 +278,12 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return null given invalid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
                 },
@@ -269,10 +297,12 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return access token given valid credentials', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -288,8 +318,10 @@ describe('Tests', () => {
         it('should return false given invalid token', function* () {
             framework = new OAuth2Framework({
                 findClient: null,
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -300,10 +332,12 @@ describe('Tests', () => {
         it('should return false given code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -318,10 +352,12 @@ describe('Tests', () => {
         it('should return true given valid token', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
@@ -340,8 +376,10 @@ describe('Tests', () => {
                 findClient: (client_id: string) => {
                     return Promise.resolve(null);
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -356,10 +394,12 @@ describe('Tests', () => {
         it('should throw error given client disabled forgot password', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, null, false));
+                    return Promise.resolve(new Client(null, null, null, null, null, false, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -374,12 +414,14 @@ describe('Tests', () => {
         it('should return false given sendForgotPasswordEmail fails', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, null, true));
+                    return Promise.resolve(new Client(null, null, null, null, null, true, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
                     return Promise.resolve(false);
                 },
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 
@@ -391,12 +433,14 @@ describe('Tests', () => {
         it('should return true given sendForgotPasswordEmail succeeds', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, null, true));
+                    return Promise.resolve(new Client(null, null, null, null, null, true, null));
                 },
+                register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
                     return Promise.resolve(true);
                 },
+                sendVerificationEmail: null,
                 validateCredentials: null,
             });
 

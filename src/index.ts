@@ -12,9 +12,11 @@ export { OAuth2FrameworkRouter } from './router';
 export class OAuth2Framework {
 
     constructor(public model: {
-        findClient: (client_id: string) => Promise<Client>
+        findClient: (client_id: string) => Promise<Client>,
+        register: (client_id: string, emailAddress: string, username: string, password: string) => Promise<boolean>,
         resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,
         sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
+        sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
     }) {
 
@@ -187,6 +189,37 @@ export class OAuth2Framework {
         });
     }
 
+    public registerRequest(client_id: string, emailAddress: string, username: string, password: string, response_type: string, redirect_uri: string, state: string): Promise<boolean> {
+        const self = this;
+
+        return co(function* () {
+
+            const client: Client = yield self.model.findClient(client_id);
+
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            if (!client.allowRegister) {
+                throw new Error('Function not enabled for client');
+            }
+
+            const returnUrl = `/authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+            const emailVerificationToken = self.generateEmailVerificationToken(client_id, username, returnUrl);
+
+            const emailVerificationUrl = `/email-verification?token=${emailVerificationToken}`;
+
+            const result = yield self.model.register(client_id, emailAddress, username, password);
+
+            if (result) {
+                const emailResult = yield self.model.sendVerificationEmail(client_id, emailAddress, username, emailVerificationUrl);
+            }
+
+
+            return result;
+        });
+    }
+
     public resetPasswordRequest(token: string, password: string): Promise<boolean> {
         const self = this;
 
@@ -233,6 +266,17 @@ export class OAuth2Framework {
             client_id,
             return_url,
             type: 'reset-password',
+            username,
+        }, 'my-secret', {
+                expiresIn: '60m',
+            });
+    }
+
+    private generateEmailVerificationToken(client_id: string, username: string, return_url: string): string {
+        return jsonwebtoken.sign({
+            client_id,
+            return_url,
+            type: 'email-verfication',
             username,
         }, 'my-secret', {
                 expiresIn: '60m',

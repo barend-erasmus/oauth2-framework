@@ -77,7 +77,7 @@
     <link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
 
-    <title>{{client.name}} | Login</title>
+    <title>{{client.name}} | Register</title>
 </head>
 
 <body>
@@ -90,7 +90,20 @@
                 </div>
             </div>
             <div class="main-login main-center">
+                <div class="text-center">
+                    <h3>Register</h3>
+                    <p></p>
+                </div>
                 <form class="form-horizontal" method="post">
+                    <div class="form-group">
+                        <label for="emailAddress" class="cols-sm-2 control-label">Email Address</label>
+                        <div class="cols-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control" name="emailAddress" id="emailAddress" placeholder="Enter your Email Address" />
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="username" class="cols-sm-2 control-label">Username</label>
                         <div class="cols-sm-10">
@@ -109,15 +122,9 @@
                             </div>
                         </div>
                     </div>
-                    <p class="text-danger">{{message}}</p>
                     <div class="form-group text-center">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block login-button">Login</button>
-                        {{#if client.allowRegister}}
-                            <a class="btn btn-primary btn-lg btn-block login-button" href="register?response_type={{query.response_type}}&client_id={{query.client_id}}&redirect_uri={{query.redirect_uri}}&state={{query.state}}">Register</a>
-                        {{/if}}
-                        {{#if client.allowForgotPassword}}
-                            <a href="forgot-password?response_type={{query.response_type}}&client_id={{query.client_id}}&redirect_uri={{query.redirect_uri}}&state={{query.state}}">Forgot Password?</a>
-                        {{/if}}
+                        <button type="submit" class="btn btn-primary btn-lg btn-block login-button">Register</button>
+                        <a href="authorize?response_type={{query.response_type}}&client_id={{query.client_id}}&redirect_uri={{query.redirect_uri}}&state={{query.state}}">Already registered?</a>
                     </div>
                 </form>
             </div>
