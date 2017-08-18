@@ -34,7 +34,6 @@
     "@types/mocha": "^2.2.41",
     "body-parser": "^1.17.2",
     "chai": "^4.1.1",
-    "co-mocha": "^1.2.0",
     "mocha": "^3.5.0",
     "nedb": "^1.8.0",
     "sendgrid": "^5.2.2",
