@@ -98,7 +98,7 @@ The Client consists of:
 
 ### OAuth2 Framework Model
 
-The OAuth2 Framework Model is used to interface which you'll need to implement in order for the framework to communicate with your database or API.
+The OAuth2 Framework Model is an interface which you'll need to implement in order for the framework to communicate with your database or API.
 
 The OAuth2 Framework Model consists of:
 
@@ -135,7 +135,7 @@ app.use('/', OAuth2FrameworkRouter(
 
 ## Customizing Templates
 
-OAuth2 Framework uses `handlebars` as a templating engine and each template get given the same model which is defined below.
+OAuth2 Framework uses `handlebars` as a templating engine and each template is given the same model which is defined below.
 
 ```
 {
