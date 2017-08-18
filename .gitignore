@@ -63,3 +63,5 @@ typings/
 *.d.ts
 
 apidoc/
+
+*.dat
