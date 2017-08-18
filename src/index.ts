@@ -18,6 +18,7 @@ export class OAuth2Framework {
         sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
+        verify: (client_id: string, username: string) => Promise<boolean>,
     }) {
 
     }
@@ -197,7 +198,7 @@ export class OAuth2Framework {
                 throw new Error('Function not enabled for client');
             }
 
-            const returnUrl = `/authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+            const returnUrl = `authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
             const resetPasswordToken = self.generateResetPasswordToken(client_id, username, returnUrl);
 
             const resetPasswordUrl = `/reset-password?token=${resetPasswordToken}`;
@@ -233,9 +234,9 @@ export class OAuth2Framework {
                 throw new Error('Function not enabled for client');
             }
 
-            // TODO: Call verfication method on model
+            const result = yield self.model.verify(decodedToken.client_id, decodedToken.username);
 
-            return true;
+            return result;
         });
     }
 
@@ -254,7 +255,7 @@ export class OAuth2Framework {
                 throw new Error('Function not enabled for client');
             }
 
-            const returnUrl = `/authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
+            const returnUrl = `authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
             const emailVerificationToken = self.generateEmailVerificationToken(client_id, username, returnUrl);
 
             const emailVerificationUrl = `/email-verification?token=${emailVerificationToken}`;
@@ -264,7 +265,6 @@ export class OAuth2Framework {
             if (result) {
                 const emailResult = yield self.model.sendVerificationEmail(client_id, emailAddress, username, emailVerificationUrl);
             }
-
 
             return result;
         });

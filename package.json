@@ -1,6 +1,6 @@
 {
   "name": "oauth2-framework",
-  "version": "0.3.3",
+  "version": "0.4.1",
   "description": "The OAuth 2.0 authorization framework enables a third-party application to obtain limited access to an HTTP service, either on behalf of a resource owner by orchestrating an approval interaction  between the resource owner and the HTTP service, or by allowing the third-party application to obtain access on its own behalf.",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -10,6 +10,7 @@
     "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js",
     "start": "tsc & node ./src/app.js",
     "docs": "apidoc -i src/ -o apidoc/",
+    "lint": "tslint ./src/**/*.ts --exclude ./src/**/*.d.ts",
     "deploy": "tsc & apidoc -i src/ -o apidoc/ & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js & ssh-deployer -f deploy.json --host developersworkspace.co.za --username username --password password --workspace ./"
   },
   "repository": {
@@ -28,6 +29,7 @@
     "express": "^4.15.4",
     "handlebars": "^4.0.10",
     "jsonwebtoken": "^7.4.2",
+    "nedb": "^1.8.0",
     "sendgrid": "^5.2.1",
     "yargs": "^8.0.2"
   },

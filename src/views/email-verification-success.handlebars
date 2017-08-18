@@ -91,11 +91,10 @@
             </div>
             <div class="main-login main-center">
                 <div class="text-center">
-                    <h3>Forgot Password - Success</h3>
-                    <p>Check your email for a link to reset your password. If it doesn't appear within a few minutes, check
-                        your spam folder.
+                    <h3>Email Verification - Success</h3>
+                    <p>Successfully verified your email address.
                     </p>
-                    <a href="authorize?response_type={{query.response_type}}&client_id={{query.client_id}}&redirect_uri={{query.redirect_uri}}&state={{query.state}}" class="btn btn-primary btn-lg btn-block login-button">Go to Login</a>
+                    <a href="{{query.return_url}}" class="btn btn-primary btn-lg btn-block login-button">Go to Login</a>
                 </div>
             </div>
         </div>

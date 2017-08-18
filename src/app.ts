@@ -1,11 +1,12 @@
 // Imports
 import * as bodyParser from 'body-parser';
+import * as co from 'co';
 import * as express from 'express';
 import * as path from 'path';
 import * as yargs from 'yargs';
-import * as co from 'co';
 
 import * as crypto from 'crypto';
+import * as NeDB from 'nedb';
 import * as sendgrid from 'sendgrid';
 
 import { Client, OAuth2Framework, OAuth2FrameworkRouter } from './index';
@@ -18,6 +19,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/api/docs', express.static(path.join(__dirname, './../apidoc')));
 app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov-report')));
+
+const db = new NeDB({ filename: path.join(__dirname, 'database.dat'), autoload: true });
 
 const model: any = {
     findClient: (client_id: string) => {
@@ -35,9 +38,40 @@ const model: any = {
         }
     },
     register: (client_id: string, emailAddress: string, username: string, password: string) => {
-        return Promise.resolve(true);
+
+        return new Promise<boolean>((resolve, reject) => {
+            db.findOne({
+                client_id,
+                username,
+            }, (err: Error, doc: any) => {
+                if (doc) {
+                    resolve(false);
+                } else {
+                    db.insert({
+                        client_id,
+                        emailAddress,
+                        password,
+                        username,
+                        verified: false,
+                    });
+
+                    resolve(true);
+                }
+            });
+        });
     },
     resetPassword: (client_id: string, username: string, password: string) => {
+
+        db.update({
+            client_id,
+            username,
+            verified: true,
+        }, {
+                $set: {
+                    password,
+                },
+            });
+
         return Promise.resolve(true);
     },
     sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
@@ -47,7 +81,9 @@ const model: any = {
                 return true;
             }
 
-            const domain = 'https://oauth2-framework.openservices.co.za';
+            // const domain = 'https://oauth2-framework.openservices.co.za';
+            const domain = 'http://localhost:3000';
+
             const subject = 'OAuth2 Framework - Forgot Password';
             const html = `<div> We heard that you lost your OAuth2 Framework password. Sorry about that!<br><br>But don’t worry! You can use the following link within the next day to reset your password:<br><br><a href="${domain}${resetPasswordUrl}" target="_blank">Reset Password</a><br><br>If you don’t use this link within 3 hours, it will expire.<br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
 
@@ -71,11 +107,34 @@ const model: any = {
         });
     },
     validateCredentials: (client_id: string, username: string, password: string) => {
-        if (username.toLowerCase() === 'demo' && password === '123456') {
-            return Promise.resolve(true);
-        } else {
-            return Promise.resolve(false);
-        }
+        return new Promise<boolean>((resolve, reject) => {
+            db.findOne({
+                client_id,
+                password,
+                username,
+                verified: true,
+            }, (err: Error, doc: any) => {
+                if (doc) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    },
+    verify: (client_id: string, username: string) => {
+
+        db.update({
+            client_id,
+            username,
+            verified: false,
+        }, {
+                $set: {
+                    verified: true,
+                },
+            });
+
+        return Promise.resolve(true);
     },
 };
 

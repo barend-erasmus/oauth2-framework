@@ -91,11 +91,11 @@
             </div>
             <div class="main-login main-center">
                 <div class="text-center">
-                    <h3>Forgot Password - Failure</h3>
+                    <h3>Email Verification - Failure</h3>
                     <p>
-                        Your username could not be found.
+                        Failed to verify your email address.
                     </p>
-                    <a href="forgot-password?response_type={{query.response_type}}&client_id={{query.client_id}}&redirect_uri={{query.redirect_uri}}&state={{query.state}}" class="btn btn-primary btn-lg btn-block login-button">Try Again</a>
+                    <a href="{{query.return_url}}" class="btn btn-primary btn-lg btn-block login-button">Go to Login</a>
                 </div>
             </div>
         </div>

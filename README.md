@@ -30,11 +30,20 @@ const model: any = {
             return Promise.resolve(null);
         }
     },
+    register: (client_id: string, emailAddress: string, username: string, password: string) => {
+        return Promise.resolve(true);
+    },
     resetPassword: (client_id: string, username: string, password: string) => {
         return Promise.resolve(true);
     },
     sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
         
+        // TODO: Send email via STMP, SendGrid or Mandrill
+
+        return Promise.resolve(true);
+    },
+    sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => {
+
         // TODO: Send email via STMP, SendGrid or Mandrill
 
         return Promise.resolve(true);
@@ -45,6 +54,9 @@ const model: any = {
         } else {
             return Promise.resolve(false);
         }
+    },
+    verify: (client_id: string, username: string) => {
+        return Promise.resolve(true);
     },
 };
 
@@ -91,13 +103,19 @@ The OAuth2 Framework Model is used to interface which you'll need to implement i
 The OAuth2 Framework Model consists of:
 
 * `findClient: (client_id: string) => Promise<Client>` - Will be used to find a Client by its id.
-* `resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,` - Will be used to reset the user's password.
+* `register: (client_id: string, emailAddress: string, username: string, password: string) => Promise<boolean>` - Will be used to register a new user.
+* `resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>` - Will be used to reset the user's password.
 * `sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>` - Will be used to send the forgot password email and should return `true` on success and `false`  on failure.
+* `sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean` - Will be used to send the verification email and should return `true` on success and `false` on failure.
 * `validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
+* `verify: (client_id: string, username: string) => Promise<boolean>` - Will be used when user click on verification url.
 
-## Customizing Templates
+## Template Flows
 
-![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/flow-diagram.png)
+![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/flow-diagram-1.png)
+
+
+![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/flow-diagram-2.png)
 
 ```javascript
 app.use('/', OAuth2FrameworkRouter(
@@ -114,6 +132,8 @@ app.use('/', OAuth2FrameworkRouter(
     'path of email-verification-failure template',
 ));
 ```
+
+## Customizing Templates
 
 OAuth2 Framework uses `handlebars` as a templating engine and each template get given the same model which is defined below.
 

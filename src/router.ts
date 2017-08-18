@@ -14,6 +14,7 @@ export function OAuth2FrameworkRouter(
         resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,
         sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean>,
+        verify: (client_id: string, username: string) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
     },
     loginPagePath: string,
@@ -346,6 +347,8 @@ export function OAuth2FrameworkRouter(
 
             const result: boolean = yield framework.emailVerificationRequest(req.query.token);
 
+            req.query.return_url = decodedToken.return_url;
+
             if (result) {
                 renderPage(res, emailVerficationSuccessPagePath || path.join(__dirname, 'views/email-verification-success.handlebars'), {
                     client,
@@ -362,7 +365,6 @@ export function OAuth2FrameworkRouter(
             res.status(500).send(err.message);
         });
     });
-
 
     return router;
 }

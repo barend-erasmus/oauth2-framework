@@ -21,6 +21,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -43,6 +44,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
                 },
+                verify: null,
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -60,6 +62,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -80,6 +83,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -102,6 +106,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -121,6 +126,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             const accessToken: string = yield framework.authorizationRequest('token', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -138,6 +144,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -158,6 +165,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -178,6 +186,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -198,6 +207,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -220,6 +230,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             try {
@@ -243,6 +254,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             try {
@@ -266,6 +278,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -287,6 +300,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(false);
                 },
+                verify: null,
             });
 
             const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
@@ -306,6 +320,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
@@ -323,6 +338,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             const result = yield framework.validateAccessToken('invalid token');
@@ -341,6 +357,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -361,6 +378,7 @@ describe('Tests', () => {
                 validateCredentials: (client_id: string, username: string, password: string) => {
                     return Promise.resolve(true);
                 },
+                verify: null,
             });
 
             const accessToken: string = yield framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
@@ -381,6 +399,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -401,6 +420,7 @@ describe('Tests', () => {
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             try {
@@ -423,6 +443,7 @@ describe('Tests', () => {
                 },
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             const result = yield framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
@@ -442,6 +463,7 @@ describe('Tests', () => {
                 },
                 sendVerificationEmail: null,
                 validateCredentials: null,
+                verify: null,
             });
 
             const result = yield framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
