@@ -1,5 +1,4 @@
 // Imports
-import * as co from 'co';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
@@ -44,11 +43,10 @@ export function OAuth2FrameworkRouter(
      * @apiParam {string} state An opaque value used by the client to maintain state between the request and callback
      *
      */
-    router.get('/authorize', (req, res) => {
+    router.get('/authorize', async (req, res) => {
 
-        co(function* () {
-
-            const client: Client = yield framework.model.findClient(req.query.client_id);
+        try {
+            const client: Client = await framework.model.findClient(req.query.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -59,16 +57,16 @@ export function OAuth2FrameworkRouter(
                 query: req.query,
             }, 200);
 
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.post('/authorize', (req, res) => {
-        co(function* () {
-            const result: string = yield framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, [req.query.scope], req.query.state, req.body.username, req.body.password);
+    router.post('/authorize', async (req, res) => {
+        try {
+            const result: string = await framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, [req.query.scope], req.query.state, req.body.username, req.body.password);
 
-            const client: Client = yield framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id);
 
             if (!result) {
                 renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
@@ -84,9 +82,9 @@ export function OAuth2FrameworkRouter(
             } else if (req.query.response_type === 'token') {
                 res.redirect(`${req.query.redirect_uri}?access_token=${result}&state=${req.query.state}`);
             }
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
     /**
@@ -103,16 +101,16 @@ export function OAuth2FrameworkRouter(
      * @apiParam {string} username The username
      * @apiParam {string} password The password
      */
-    router.post('/token', (req, res) => {
-        co(function* () {
-            const accessToken: string = yield framework.accessTokenRequest(req.body.grant_type, req.body.code, req.body.redirect_uri, req.body.client_id, req.body.client_secret, req.body.username, req.body.password, [req.body.scope]);
+    router.post('/token', async (req, res) => {
+        try {
+            const accessToken: string = await framework.accessTokenRequest(req.body.grant_type, req.body.code, req.body.redirect_uri, req.body.client_id, req.body.client_secret, req.body.username, req.body.password, [req.body.scope]);
 
             res.json({
                 access_token: accessToken,
             });
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
     /**
@@ -122,9 +120,8 @@ export function OAuth2FrameworkRouter(
      *
      * @apiHeader {string} authorization Bearer Token.
      */
-    router.post('/validate', (req, res) => {
-        co(function* () {
-
+    router.post('/validate', async (req, res) => {
+        try {
             const authorizationHeader: string = req.get('Authorization');
 
             if (!authorizationHeader || authorizationHeader.split(' ')[0].toLowerCase() !== 'bearer') {
@@ -133,14 +130,14 @@ export function OAuth2FrameworkRouter(
 
             const access_token = authorizationHeader.split(' ')[1];
 
-            const valid: boolean = yield framework.validateAccessToken(access_token);
+            const valid: boolean = await framework.validateAccessToken(access_token);
 
             res.json({
                 valid,
             });
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
     /**
@@ -150,8 +147,8 @@ export function OAuth2FrameworkRouter(
      *
      * @apiHeader {string} authorization Bearer Token.
      */
-    router.get('/user', (req, res) => {
-        co(function* () {
+    router.get('/user', async (req, res) => {
+        try {
 
             const authorizationHeader: string = req.get('Authorization');
 
@@ -161,25 +158,25 @@ export function OAuth2FrameworkRouter(
 
             const access_token = authorizationHeader.split(' ')[1];
 
-            const valid: boolean = yield framework.validateAccessToken(access_token);
+            const valid: boolean = await framework.validateAccessToken(access_token);
 
             if (valid) {
-                const decodedToken: string = yield framework.decodeJWT(access_token);
+                const decodedToken: string = await framework.decodeJWT(access_token);
 
                 res.json(decodedToken);
             } else {
                 res.json(null);
             }
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.get('/forgot-password', (req, res) => {
+    router.get('/forgot-password', async (req, res) => {
 
-        co(function* () {
+        try {
 
-            const client: Client = yield framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -190,22 +187,22 @@ export function OAuth2FrameworkRouter(
                 query: req.query,
             }, 200);
 
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.post('/forgot-password', (req, res) => {
+    router.post('/forgot-password', async (req, res) => {
 
-        co(function* () {
+        try {
 
-            const client: Client = yield framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = yield framework.forgotPasswordRequest(req.query.client_id, req.body.username, req.query.response_type, req.query.redirect_uri, req.query.state);
+            const result: boolean = await framework.forgotPasswordRequest(req.query.client_id, req.body.username, req.query.response_type, req.query.redirect_uri, req.query.state);
 
             if (result) {
                 renderPage(res, forgotPasswordSuccessPagePath || path.join(__dirname, 'views/forgot-password-success.handlebars'), {
@@ -219,22 +216,22 @@ export function OAuth2FrameworkRouter(
                 }, 200);
             }
 
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.get('/reset-password', (req, res) => {
+    router.get('/reset-password', async (req, res) => {
 
-        co(function* () {
+        try {
 
-            const decodedToken: any = yield framework.decodeResetPasswordToken(req.query.token);
+            const decodedToken: any = await framework.decodeResetPasswordToken(req.query.token);
 
             if (!decodedToken) {
                 throw new Error('Invalid token');
             }
 
-            const client: Client = yield framework.model.findClient(decodedToken.client_id);
+            const client: Client = await framework.model.findClient(decodedToken.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -244,28 +241,28 @@ export function OAuth2FrameworkRouter(
                 client,
                 query: req.query,
             }, 200);
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.post('/reset-password', (req, res) => {
+    router.post('/reset-password', async (req, res) => {
 
-        co(function* () {
+       try {
 
-            const decodedToken: any = yield framework.decodeResetPasswordToken(req.query.token);
+            const decodedToken: any = await framework.decodeResetPasswordToken(req.query.token);
 
             if (!decodedToken) {
                 throw new Error('Invalid token');
             }
 
-            const client: Client = yield framework.model.findClient(decodedToken.client_id);
+            const client: Client = await framework.model.findClient(decodedToken.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = yield framework.resetPasswordRequest(req.query.token, req.body.password);
+            const result: boolean = await framework.resetPasswordRequest(req.query.token, req.body.password);
 
             if (result) {
                 res.redirect(decodedToken.return_url);
@@ -275,16 +272,15 @@ export function OAuth2FrameworkRouter(
                     query: req.query,
                 }, 200);
             }
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.get('/register', (req, res) => {
+    router.get('/register', async (req, res) => {
 
-        co(function* () {
-
-            const client: Client = yield framework.model.findClient(req.query.client_id);
+        try {
+            const client: Client = await framework.model.findClient(req.query.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -295,22 +291,22 @@ export function OAuth2FrameworkRouter(
                 query: req.query,
             }, 200);
 
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.post('/register', (req, res) => {
+    router.post('/register', async (req, res) => {
 
-        co(function* () {
+       try {
 
-            const client: Client = yield framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = yield framework.registerRequest(req.query.client_id, req.body.emailAddress, req.body.username, req.body.password, req.query.response_type, req.query.redirect_uri, req.query.state);
+            const result: boolean = await framework.registerRequest(req.query.client_id, req.body.emailAddress, req.body.username, req.body.password, req.query.response_type, req.query.redirect_uri, req.query.state);
 
             if (result) {
                 renderPage(res, registerSuccessPagePath || path.join(__dirname, 'views/register-success.handlebars'), {
@@ -324,28 +320,27 @@ export function OAuth2FrameworkRouter(
                 }, 200);
             }
 
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
-    router.get('/email-verification', (req, res) => {
+    router.get('/email-verification', async (req, res) => {
 
-        co(function* () {
-
-            const decodedToken: any = yield framework.decodeEmailVerificationToken(req.query.token);
+       try {
+            const decodedToken: any = await framework.decodeEmailVerificationToken(req.query.token);
 
             if (!decodedToken) {
                 throw new Error('Invalid token');
             }
 
-            const client: Client = yield framework.model.findClient(decodedToken.client_id);
+            const client: Client = await framework.model.findClient(decodedToken.client_id);
 
             if (!client) {
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = yield framework.emailVerificationRequest(req.query.token);
+            const result: boolean = await framework.emailVerificationRequest(req.query.token);
 
             req.query.return_url = decodedToken.return_url;
 
@@ -361,9 +356,9 @@ export function OAuth2FrameworkRouter(
                 }, 200);
             }
 
-        }).catch((err: Error) => {
+        } catch (err) {
             res.status(500).send(err.message);
-        });
+        }
     });
 
     return router;

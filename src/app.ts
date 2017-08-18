@@ -1,6 +1,5 @@
 // Imports
 import * as bodyParser from 'body-parser';
-import * as co from 'co';
 import * as express from 'express';
 import * as path from 'path';
 import * as yargs from 'yargs';
@@ -75,36 +74,31 @@ const model: any = {
         return Promise.resolve(true);
     },
     sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
-        return co(function* () {
+        if (!validateEmailAddress(username)) {
+            return true;
+        }
 
-            if (!validateEmailAddress(username)) {
-                return true;
-            }
+        // const domain = 'https://oauth2-framework.openservices.co.za';
+        const domain = 'http://localhost:3000';
 
-            // const domain = 'https://oauth2-framework.openservices.co.za';
-            const domain = 'http://localhost:3000';
+        const subject = 'OAuth2 Framework - Forgot Password';
+        const html = `<div> We heard that you lost your OAuth2 Framework password. Sorry about that!<br><br>But don’t worry! You can use the following link within the next day to reset your password:<br><br><a href="${domain}${resetPasswordUrl}" target="_blank">Reset Password</a><br><br>If you don’t use this link within 3 hours, it will expire.<br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
 
-            const subject = 'OAuth2 Framework - Forgot Password';
-            const html = `<div> We heard that you lost your OAuth2 Framework password. Sorry about that!<br><br>But don’t worry! You can use the following link within the next day to reset your password:<br><br><a href="${domain}${resetPasswordUrl}" target="_blank">Reset Password</a><br><br>If you don’t use this link within 3 hours, it will expire.<br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
-
-            return sendEmail(username, subject, html);
-        });
+        return sendEmail(username, subject, html);
     },
     sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => {
-        return co(function* () {
 
-            if (!validateEmailAddress(emailAddress)) {
-                return true;
-            }
+        if (!validateEmailAddress(emailAddress)) {
+            return true;
+        }
 
-            // const domain = 'https://oauth2-framework.openservices.co.za';
-            const domain = 'http://localhost:3000';
+        // const domain = 'https://oauth2-framework.openservices.co.za';
+        const domain = 'http://localhost:3000';
 
-            const subject = 'OAuth2 Framework - Verification';
-            const html = `<div> Thank you for registering on OAuth2 Framework. <br><br><a href="${domain}${verificationUrl}" target="_blank">Verify Email</a> <br><br>If you don’t use this link within 3 hours, it will expire. <br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
+        const subject = 'OAuth2 Framework - Verification';
+        const html = `<div> Thank you for registering on OAuth2 Framework. <br><br><a href="${domain}${verificationUrl}" target="_blank">Verify Email</a> <br><br>If you don’t use this link within 3 hours, it will expire. <br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
 
-            return sendEmail(emailAddress, subject, html);
-        });
+        return sendEmail(emailAddress, subject, html);
     },
     validateCredentials: (client_id: string, username: string, password: string) => {
         return new Promise<boolean>((resolve, reject) => {
