@@ -21,7 +21,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.authorizationRequest('invalid response_type', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -44,7 +44,7 @@ describe('Tests', () => {
                     return Promise.resolve(false);
                 },
                 verify: null,
-            });
+            }, null);
 
             const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
 
@@ -62,7 +62,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.authorizationRequest('code', 'invalid client_id', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -83,7 +83,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.authorizationRequest('code', 'client_id1', 'invalid redirect_uri', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -106,7 +106,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
 
@@ -126,7 +126,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             const accessToken: string = await framework.authorizationRequest('token', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
 
@@ -144,7 +144,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.accessTokenRequest('invalid grant_type', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
@@ -165,7 +165,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.accessTokenRequest('authorization_code', 'code1', 'redirect_uri1', 'invalid client_id', 'client_secret1', null, null, null);
@@ -186,7 +186,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.accessTokenRequest('authorization_code', 'code1', 'invalid redirect_uri', 'client_id1', 'client_secret1', null, null, null);
@@ -207,7 +207,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.accessTokenRequest('authorization_code', 'invalid code', 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
@@ -230,7 +230,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             try {
                 const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
@@ -254,7 +254,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             try {
                 const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
@@ -278,7 +278,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
 
@@ -300,7 +300,7 @@ describe('Tests', () => {
                     return Promise.resolve(false);
                 },
                 verify: null,
-            });
+            }, null);
 
             const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
 
@@ -320,7 +320,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
 
@@ -338,7 +338,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             const result = await framework.validateAccessToken('invalid token');
             expect(result).to.be.false;
@@ -357,7 +357,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, null);
 
             const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
 
@@ -378,7 +378,7 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
-            });
+            }, 'secret');
 
             const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
 
@@ -399,7 +399,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.forgotPasswordRequest('invalid client_id', 'username1', 'response_type1', 'redirect_uri1', '');
@@ -420,7 +420,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, null);
 
             try {
                 await framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
@@ -443,7 +443,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, 'secret');
 
             const result = await framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
             expect(result).to.be.false;
@@ -463,7 +463,7 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
-            });
+            }, 'secret');
 
             const result = await framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
             expect(result).to.be.true;

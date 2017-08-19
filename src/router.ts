@@ -26,10 +26,11 @@ export function OAuth2FrameworkRouter(
     registerFailurePagePath: string,
     emailVerficationSuccessPagePath: string,
     emailVerficationFailurePagePath: string,
+    secret: string,
 ): express.Router {
     const router = express.Router();
 
-    const framework: OAuth2Framework = new OAuth2Framework(model);
+    const framework: OAuth2Framework = new OAuth2Framework(model, secret);
 
     /**
      * @api {get} /authorize Authorization Request

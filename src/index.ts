@@ -18,7 +18,8 @@ export class OAuth2Framework {
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
         verify: (client_id: string, username: string) => Promise<boolean>,
-    }) {
+    }, public secret: string,
+    ) {
 
     }
 
@@ -254,7 +255,7 @@ export class OAuth2Framework {
 
     public decodeJWT(jwt: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            jsonwebtoken.verify(jwt, 'my-secret', (err: Error, decodedCode: any) => {
+            jsonwebtoken.verify(jwt, this.secret, (err: Error, decodedCode: any) => {
 
                 if (err) {
                     resolve(null);
@@ -272,7 +273,7 @@ export class OAuth2Framework {
             return_url,
             type: 'reset-password',
             username,
-        }, 'my-secret', {
+        }, this.secret, {
                 expiresIn: '60m',
             });
     }
@@ -283,7 +284,7 @@ export class OAuth2Framework {
             return_url,
             type: 'email-verification',
             username,
-        }, 'my-secret', {
+        }, this.secret, {
                 expiresIn: '60m',
             });
     }
@@ -294,7 +295,7 @@ export class OAuth2Framework {
             scopes,
             type: 'access-token',
             username,
-        }, 'my-secret', {
+        }, this.secret, {
                 expiresIn: '60m',
             });
     }
@@ -305,7 +306,7 @@ export class OAuth2Framework {
             scopes,
             type: 'code',
             username,
-        }, 'my-secret', {
+        }, this.secret, {
                 expiresIn: '10m',
             });
     }
