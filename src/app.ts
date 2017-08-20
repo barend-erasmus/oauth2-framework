@@ -78,8 +78,7 @@ const model: any = {
             return true;
         }
 
-        // const domain = 'https://oauth2-framework.openservices.co.za';
-        const domain = 'http://localhost:3000';
+        const domain = argv.prod? 'https://oauth2-framework.openservices.co.za' : 'http://localhost:3000';
 
         const subject = 'OAuth2 Framework - Forgot Password';
         const html = `<div> We heard that you lost your OAuth2 Framework password. Sorry about that!<br><br>But don’t worry! You can use the following link within the next day to reset your password:<br><br><a href="${domain}${resetPasswordUrl}" target="_blank">Reset Password</a><br><br>If you don’t use this link within 3 hours, it will expire.<br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
@@ -92,8 +91,7 @@ const model: any = {
             return true;
         }
 
-        // const domain = 'https://oauth2-framework.openservices.co.za';
-        const domain = 'http://localhost:3000';
+        const domain = argv.prod? 'https://oauth2-framework.openservices.co.za' : 'http://localhost:3000';
 
         const subject = 'OAuth2 Framework - Verification';
         const html = `<div> Thank you for registering on OAuth2 Framework. <br><br><a href="${domain}${verificationUrl}" target="_blank">Verify Email</a> <br><br>If you don’t use this link within 3 hours, it will expire. <br><br>Thanks,<br>Your friends at OAuth2 Framework <div class="yj6qo"></div><div class="adL"><br></div></div>`;
