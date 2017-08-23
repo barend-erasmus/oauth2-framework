@@ -220,7 +220,7 @@ export function OAuth2FrameworkRouter(
                 }
 
             } catch (err) {
-                renderPage(res, forgotPasswordFailurePagePath || path.join(__dirname, 'views/forgot-password-failure.handlebars'), {
+                renderPage(res, forgotPasswordPagePath || path.join(__dirname, 'views/forgot-password.handlebars'), {
                     client,
                     message: err.message,
                     query: req.query,
