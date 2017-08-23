@@ -46,7 +46,7 @@ export class OAuth2Framework {
             throw new Error('Invalid redirect_uri');
         }
 
-        if (scopes.filter((x) => client.allowedScopes.indexOf(x) === -1).length === 0) {
+        if (scopes.length !== 0 && scopes.filter((x) => client.allowedScopes.indexOf(x) === -1).length === 0) {
             throw new Error('Invalid scopes');
         }
 
