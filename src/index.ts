@@ -46,7 +46,9 @@ export class OAuth2Framework {
             throw new Error('Invalid redirect_uri');
         }
 
-        // TODO: Validate Scopes
+        if (scopes.filter((x) => client.allowedScopes.indexOf(x) === -1).length === 0) {
+            throw new Error('Invalid scopes');
+        }
 
         const validCredentials: boolean = await this.model.validateCredentials(client_id, username, password);
 

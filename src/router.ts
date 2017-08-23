@@ -65,7 +65,7 @@ export function OAuth2FrameworkRouter(
 
     router.post('/authorize', async (req, res) => {
         try {
-            const result: string = await framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, [req.query.scope], req.query.state, req.body.username, req.body.password);
+            const result: string = await framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, req.query.scope ? [req.query.scope] : [], req.query.state, req.body.username, req.body.password);
 
             const client: Client = await framework.model.findClient(req.query.client_id);
 
@@ -203,16 +203,26 @@ export function OAuth2FrameworkRouter(
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = await framework.forgotPasswordRequest(req.query.client_id, req.body.username, req.query.response_type, req.query.redirect_uri, req.query.state);
+            try {
 
-            if (result) {
-                renderPage(res, forgotPasswordSuccessPagePath || path.join(__dirname, 'views/forgot-password-success.handlebars'), {
-                    client,
-                    query: req.query,
-                }, 200);
-            } else {
+                const result: boolean = await framework.forgotPasswordRequest(req.query.client_id, req.body.username, req.query.response_type, req.query.redirect_uri, req.query.state);
+
+                if (result) {
+                    renderPage(res, forgotPasswordSuccessPagePath || path.join(__dirname, 'views/forgot-password-success.handlebars'), {
+                        client,
+                        query: req.query,
+                    }, 200);
+                } else {
+                    renderPage(res, forgotPasswordFailurePagePath || path.join(__dirname, 'views/forgot-password-failure.handlebars'), {
+                        client,
+                        query: req.query,
+                    }, 200);
+                }
+
+            } catch (err) {
                 renderPage(res, forgotPasswordFailurePagePath || path.join(__dirname, 'views/forgot-password-failure.handlebars'), {
                     client,
+                    message: err.message,
                     query: req.query,
                 }, 200);
             }
@@ -249,7 +259,7 @@ export function OAuth2FrameworkRouter(
 
     router.post('/reset-password', async (req, res) => {
 
-       try {
+        try {
 
             const decodedToken: any = await framework.decodeResetPasswordToken(req.query.token);
 
@@ -263,13 +273,22 @@ export function OAuth2FrameworkRouter(
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = await framework.resetPasswordRequest(req.query.token, req.body.password);
+            try {
 
-            if (result) {
-                res.redirect(decodedToken.return_url);
-            } else {
+                const result: boolean = await framework.resetPasswordRequest(req.query.token, req.body.password);
+
+                if (result) {
+                    res.redirect(decodedToken.return_url);
+                } else {
+                    renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
+                        client,
+                        query: req.query,
+                    }, 200);
+                }
+            } catch (err) {
                 renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
                     client,
+                    message: err.message,
                     query: req.query,
                 }, 200);
             }
@@ -299,7 +318,7 @@ export function OAuth2FrameworkRouter(
 
     router.post('/register', async (req, res) => {
 
-       try {
+        try {
 
             const client: Client = await framework.model.findClient(req.query.client_id);
 
@@ -307,16 +326,26 @@ export function OAuth2FrameworkRouter(
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = await framework.registerRequest(req.query.client_id, req.body.emailAddress, req.body.username, req.body.password, req.query.response_type, req.query.redirect_uri, req.query.state);
+            try {
 
-            if (result) {
-                renderPage(res, registerSuccessPagePath || path.join(__dirname, 'views/register-success.handlebars'), {
+                const result: boolean = await framework.registerRequest(req.query.client_id, req.body.emailAddress, req.body.username, req.body.password, req.query.response_type, req.query.redirect_uri, req.query.state);
+
+                if (result) {
+                    renderPage(res, registerSuccessPagePath || path.join(__dirname, 'views/register-success.handlebars'), {
+                        client,
+                        query: req.query,
+                    }, 200);
+                } else {
+                    renderPage(res, registerFailurePagePath || path.join(__dirname, 'views/register-failure.handlebars'), {
+                        client,
+                        query: req.query,
+                    }, 200);
+                }
+
+            } catch (err) {
+                renderPage(res, registerPagePath || path.join(__dirname, 'views/register.handlebars'), {
                     client,
-                    query: req.query,
-                }, 200);
-            } else {
-                renderPage(res, registerFailurePagePath || path.join(__dirname, 'views/register-failure.handlebars'), {
-                    client,
+                    message: err.message,
                     query: req.query,
                 }, 200);
             }
@@ -328,7 +357,7 @@ export function OAuth2FrameworkRouter(
 
     router.get('/email-verification', async (req, res) => {
 
-       try {
+        try {
             const decodedToken: any = await framework.decodeEmailVerificationToken(req.query.token);
 
             if (!decodedToken) {

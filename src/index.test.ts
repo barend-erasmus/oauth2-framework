@@ -34,7 +34,7 @@ describe('Tests', () => {
         it('should return null given invalid credentials', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -96,7 +96,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return code', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -116,7 +116,7 @@ describe('Tests', () => {
         it('Implicit Grant: should return access_token', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -244,7 +244,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given invalid client_secret', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -268,7 +268,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return access token', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, 'client_secret1', [], ['redirect_uri1'], null, null));
                 },
                 register: null,
                 resetPassword: null,
