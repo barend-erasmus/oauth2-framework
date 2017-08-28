@@ -4,11 +4,9 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 
 ## Getting Started
 
-* [Demo (Authorization Code Grant)](https://oauth2-framework.openservices.co.za/authorize?response_type=code&client_id=0zyrWYATtw&redirect_uri=http://example.com/callback&scope=read&state=yAAOhrFDNH)
-* [Demo (Implicit Grant)](https://oauth2-framework.openservices.co.za/authorize?response_type=token&client_id=0zyrWYATtw&redirect_uri=http://example.com/callback&scope=read&state=yAAOhrFDNH)
-* [API Documentation](https://oauth2-framework.openservices.co.za/api/docs/)
+* [Demo (Authorization Code Grant)](https://ketone.openservices.co.za)
+* [API Documentation](https://ketone.openservices.co.za/api/docs/)
 * [Source Code](https://github.com/barend-erasmus/oauth2-framework)
-* [Coverage Report](https://oauth2-framework.openservices.co.za/api/coverage/)
 
 ![](https://github.com/barend-erasmus/oauth2-framework/raw/master/images/diagram.png)
 
@@ -163,6 +161,7 @@ This template has the following requirements:
         <label>Password</label>
         <input type="password" name="password">
     </div>
+    <p>{{message}}</p>
     <div class="button">
         <button type="submit">Login</button>
     </div>
