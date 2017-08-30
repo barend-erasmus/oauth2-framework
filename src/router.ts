@@ -8,13 +8,13 @@ import { Client, OAuth2Framework } from './index';
 
 export function OAuth2FrameworkRouter(
     model: {
-        findClient: (client_id: string) => Promise<Client>,
-        register: (client_id: string, emailAddress: string, username: string, password: string) => Promise<boolean>,
-        resetPassword: (client_id: string, username: string, password: string) => Promise<boolean>,
-        sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => Promise<boolean>,
-        sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean>,
-        verify: (client_id: string, username: string) => Promise<boolean>,
-        validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>,
+        findClient: (client_id: string, request: express.Request) => Promise<Client>,
+        register: (client_id: string, emailAddress: string, username: string, password: string, request: express.Request) => Promise<boolean>,
+        resetPassword: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
+        sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string, request: express.Request) => Promise<boolean>,
+        sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => Promise<boolean>,
+        verify: (client_id: string, username: string, request: express.Request) => Promise<boolean>,
+        validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
     },
     loginPagePath: string,
     forgotPasswordPagePath: string,
@@ -47,7 +47,7 @@ export function OAuth2FrameworkRouter(
     router.get('/authorize', async (req, res) => {
 
         try {
-            const client: Client = await framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -65,9 +65,17 @@ export function OAuth2FrameworkRouter(
 
     router.post('/authorize', async (req, res) => {
         try {
-            const result: string = await framework.authorizationRequest(req.query.response_type, req.query.client_id, req.query.redirect_uri, req.query.scope ? [req.query.scope] : [], req.query.state, req.body.username, req.body.password);
+            const result: string = await framework.authorizationRequest(
+                req.query.response_type,
+                req.query.client_id,
+                req.query.redirect_uri,
+                req.query.scope ? [req.query.scope] : [],
+                req.query.state,
+                req.body.username,
+                req.body.password,
+                req);
 
-            const client: Client = await framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!result) {
                 renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
@@ -104,7 +112,16 @@ export function OAuth2FrameworkRouter(
      */
     router.post('/token', async (req, res) => {
         try {
-            const accessToken: string = await framework.accessTokenRequest(req.body.grant_type, req.body.code, req.body.redirect_uri, req.body.client_id, req.body.client_secret, req.body.username, req.body.password, [req.body.scope]);
+            const accessToken: string = await framework.accessTokenRequest(
+                req.body.grant_type,
+                req.body.code,
+                req.body.redirect_uri,
+                req.body.client_id,
+                req.body.client_secret,
+                req.body.username,
+                req.body.password,
+                [req.body.scope],
+                req);
 
             res.json({
                 access_token: accessToken,
@@ -177,7 +194,7 @@ export function OAuth2FrameworkRouter(
 
         try {
 
-            const client: Client = await framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -197,7 +214,7 @@ export function OAuth2FrameworkRouter(
 
         try {
 
-            const client: Client = await framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -205,7 +222,13 @@ export function OAuth2FrameworkRouter(
 
             try {
 
-                const result: boolean = await framework.forgotPasswordRequest(req.query.client_id, req.body.username, req.query.response_type, req.query.redirect_uri, req.query.state);
+                const result: boolean = await framework.forgotPasswordRequest(
+                    req.query.client_id,
+                    req.body.username,
+                    req.query.response_type,
+                    req.query.redirect_uri,
+                    req.query.state,
+                    req);
 
                 if (result) {
                     renderPage(res, forgotPasswordSuccessPagePath || path.join(__dirname, 'views/forgot-password-success.handlebars'), {
@@ -242,7 +265,7 @@ export function OAuth2FrameworkRouter(
                 throw new Error('Invalid token');
             }
 
-            const client: Client = await framework.model.findClient(decodedToken.client_id);
+            const client: Client = await framework.model.findClient(decodedToken.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -267,7 +290,7 @@ export function OAuth2FrameworkRouter(
                 throw new Error('Invalid token');
             }
 
-            const client: Client = await framework.model.findClient(decodedToken.client_id);
+            const client: Client = await framework.model.findClient(decodedToken.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -275,7 +298,10 @@ export function OAuth2FrameworkRouter(
 
             try {
 
-                const result: boolean = await framework.resetPasswordRequest(req.query.token, req.body.password);
+                const result: boolean = await framework.resetPasswordRequest(
+                    req.query.token,
+                    req.body.password,
+                    req);
 
                 if (result) {
                     res.redirect(decodedToken.return_url);
@@ -300,7 +326,7 @@ export function OAuth2FrameworkRouter(
     router.get('/register', async (req, res) => {
 
         try {
-            const client: Client = await framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -320,7 +346,7 @@ export function OAuth2FrameworkRouter(
 
         try {
 
-            const client: Client = await framework.model.findClient(req.query.client_id);
+            const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
@@ -328,7 +354,15 @@ export function OAuth2FrameworkRouter(
 
             try {
 
-                const result: boolean = await framework.registerRequest(req.query.client_id, req.body.emailAddress, req.body.username, req.body.password, req.query.response_type, req.query.redirect_uri, req.query.state);
+                const result: boolean = await framework.registerRequest(
+                    req.query.client_id,
+                    req.body.emailAddress,
+                    req.body.username,
+                    req.body.password,
+                    req.query.response_type,
+                    req.query.redirect_uri,
+                    req.query.state,
+                    req);
 
                 if (result) {
                     renderPage(res, registerSuccessPagePath || path.join(__dirname, 'views/register-success.handlebars'), {
@@ -364,13 +398,13 @@ export function OAuth2FrameworkRouter(
                 throw new Error('Invalid token');
             }
 
-            const client: Client = await framework.model.findClient(decodedToken.client_id);
+            const client: Client = await framework.model.findClient(decodedToken.client_id, req);
 
             if (!client) {
                 throw new Error('Invalid client_id');
             }
 
-            const result: boolean = await framework.emailVerificationRequest(req.query.token);
+            const result: boolean = await framework.emailVerificationRequest(req.query.token, req);
 
             req.query.return_url = decodedToken.return_url;
 

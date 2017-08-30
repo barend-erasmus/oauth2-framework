@@ -24,7 +24,15 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.authorizationRequest('invalid response_type', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+                await framework.authorizationRequest(
+                    'invalid response_type',
+                    'client_id1',
+                    'redirect_uri1',
+                    ['scope1', 'scope2'],
+                    'state',
+                    'username1',
+                    'password1',
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid response_type');
@@ -46,7 +54,15 @@ describe('Tests', () => {
                 verify: null,
             }, null);
 
-            const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+            const code: string = await framework.authorizationRequest(
+                'code',
+                'client_id1',
+                'redirect_uri1',
+                ['scope1', 'scope2'],
+                'state',
+                'username1',
+                'password1',
+                null);
 
             expect(code).to.be.null;
         });
@@ -65,7 +81,15 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.authorizationRequest('code', 'invalid client_id', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+                await framework.authorizationRequest(
+                    'code',
+                    'invalid client_id',
+                    'redirect_uri1',
+                    ['scope1', 'scope2'],
+                    'state',
+                    'username1',
+                    'password1',
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid client_id');
@@ -86,7 +110,15 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.authorizationRequest('code', 'client_id1', 'invalid redirect_uri', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+                await framework.authorizationRequest(
+                    'code',
+                    'client_id1',
+                    'invalid redirect_uri',
+                    ['scope1', 'scope2'],
+                    'state',
+                    'username1',
+                    'password1',
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid redirect_uri');
@@ -108,7 +140,15 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+            const code: string = await framework.authorizationRequest(
+                'code',
+                'client_id1',
+                'redirect_uri1',
+                ['scope1', 'scope2'],
+                'state',
+                'username1',
+                'password1',
+                null);
 
             expect(code).to.be.not.null;
         });
@@ -128,7 +168,15 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const accessToken: string = await framework.authorizationRequest('token', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+            const accessToken: string = await framework.authorizationRequest(
+                'token',
+                'client_id1',
+                'redirect_uri1',
+                ['scope1', 'scope2'],
+                'state',
+                'username1',
+                'password1',
+                null);
 
             expect(accessToken).to.be.not.null;
         });
@@ -147,7 +195,16 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.accessTokenRequest('invalid grant_type', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
+                await framework.accessTokenRequest(
+                    'invalid grant_type',
+                    'code1',
+                    'redirect_uri1',
+                    'client_id1',
+                    'client_secret1',
+                    null,
+                    null,
+                    null,
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid grant_type');
@@ -168,7 +225,16 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.accessTokenRequest('authorization_code', 'code1', 'redirect_uri1', 'invalid client_id', 'client_secret1', null, null, null);
+                await framework.accessTokenRequest(
+                    'authorization_code',
+                    'code1',
+                    'redirect_uri1',
+                    'invalid client_id',
+                    'client_secret1',
+                    null,
+                    null,
+                    null,
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid client_id');
@@ -189,7 +255,16 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.accessTokenRequest('authorization_code', 'code1', 'invalid redirect_uri', 'client_id1', 'client_secret1', null, null, null);
+                await framework.accessTokenRequest(
+                    'authorization_code',
+                    'code1',
+                    'invalid redirect_uri',
+                    'client_id1',
+                    'client_secret1',
+                    null,
+                    null,
+                    null,
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid redirect_uri');
@@ -210,7 +285,16 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.accessTokenRequest('authorization_code', 'invalid code', 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
+                await framework.accessTokenRequest(
+                    'authorization_code',
+                    'invalid code',
+                    'redirect_uri1',
+                    'client_id1',
+                    'client_secret1',
+                    null,
+                    null,
+                    null,
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid code');
@@ -233,8 +317,26 @@ describe('Tests', () => {
             }, 'secret');
 
             try {
-                const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
-                await framework.accessTokenRequest('authorization_code', accessToken, 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
+                const accessToken: string = await framework.accessTokenRequest(
+                    'password',
+                    'code1',
+                    'redirect_uri1',
+                    'client_id1',
+                    'client_secret1',
+                    'username1',
+                    'password1',
+                    [],
+                    null);
+                await framework.accessTokenRequest(
+                    'authorization_code',
+                    accessToken,
+                    'redirect_uri1',
+                    'client_id1',
+                    'client_secret1',
+                    null,
+                    null,
+                    null,
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid code');
@@ -257,8 +359,25 @@ describe('Tests', () => {
             }, 'secret');
 
             try {
-                const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
-                await framework.accessTokenRequest('authorization_code', code, 'redirect_uri1', 'client_id1', 'invalid client_secret', null, null, null);
+                const code: string = await framework.authorizationRequest(
+                    'code',
+                    'client_id1',
+                    'redirect_uri1',
+                    ['scope1', 'scope2'],
+                    'state',
+                    'username1',
+                    'password1',
+                    null);
+                await framework.accessTokenRequest(
+                    'authorization_code',
+                    code,
+                    'redirect_uri1',
+                    'client_id1',
+                    'invalid client_secret',
+                    null,
+                    null,
+                    null,
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid client_secret');
@@ -280,9 +399,26 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const code: string = await framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+            const code: string = await framework.authorizationRequest(
+                'code',
+                'client_id1',
+                'redirect_uri1',
+                ['scope1', 'scope2'],
+                'state',
+                'username1',
+                'password1',
+                null);
 
-            const accessToken: string = await framework.accessTokenRequest('authorization_code', code, 'redirect_uri1', 'client_id1', 'client_secret1', null, null, null);
+            const accessToken: string = await framework.accessTokenRequest(
+                'authorization_code',
+                code,
+                'redirect_uri1',
+                'client_id1',
+                'client_secret1',
+                null,
+                null,
+                null,
+                null);
 
             expect(accessToken).to.be.not.null;
         });
@@ -302,7 +438,16 @@ describe('Tests', () => {
                 verify: null,
             }, null);
 
-            const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
+            const accessToken: string = await framework.accessTokenRequest(
+                'password',
+                'code1',
+                'redirect_uri1',
+                'client_id1',
+                'client_secret1',
+                'username1',
+                'password1',
+                [],
+                null);
 
             expect(accessToken).to.be.null;
         });
@@ -322,7 +467,16 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
+            const accessToken: string = await framework.accessTokenRequest(
+                'password',
+                'code1',
+                'redirect_uri1',
+                'client_id1',
+                'client_secret1',
+                'username1',
+                'password1',
+                [],
+                null);
 
             expect(accessToken).to.be.not.null;
         });
@@ -359,7 +513,15 @@ describe('Tests', () => {
                 verify: null,
             }, null);
 
-            const code: string = yield framework.authorizationRequest('code', 'client_id1', 'redirect_uri1', ['scope1', 'scope2'], 'state', 'username1', 'password1');
+            const code: string = yield framework.authorizationRequest(
+                'code',
+                'client_id1',
+                'redirect_uri1',
+                ['scope1', 'scope2'],
+                'state',
+                'username1',
+                'password1',
+                null);
 
             const result = yield framework.validateAccessToken(code);
             expect(result).to.be.false;
@@ -380,7 +542,16 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const accessToken: string = await framework.accessTokenRequest('password', 'code1', 'redirect_uri1', 'client_id1', 'client_secret1', 'username1', 'password1', []);
+            const accessToken: string = await framework.accessTokenRequest(
+                'password',
+                'code1',
+                'redirect_uri1',
+                'client_id1',
+                'client_secret1',
+                'username1',
+                'password1',
+                [],
+                null);
 
             const result = await framework.validateAccessToken(accessToken);
             expect(result).to.be.true;
@@ -402,7 +573,13 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.forgotPasswordRequest('invalid client_id', 'username1', 'response_type1', 'redirect_uri1', '');
+                await framework.forgotPasswordRequest(
+                    'invalid client_id',
+                    'username1',
+                    'response_type1',
+                    'redirect_uri1',
+                    '',
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Invalid client_id');
@@ -423,7 +600,13 @@ describe('Tests', () => {
             }, null);
 
             try {
-                await framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
+                await framework.forgotPasswordRequest(
+                    'client_id1',
+                    'username1',
+                    'response_type1',
+                    'redirect_uri1',
+                    '',
+                    null);
                 throw new Error('Expected Error');
             } catch (err) {
                 expect(err.message).to.be.equal('Function not enabled for client');
@@ -445,7 +628,13 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const result = await framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
+            const result = await framework.forgotPasswordRequest(
+                'client_id1',
+                'username1',
+                'response_type1',
+                'redirect_uri1',
+                '',
+                null);
             expect(result).to.be.false;
 
         });
@@ -465,7 +654,13 @@ describe('Tests', () => {
                 verify: null,
             }, 'secret');
 
-            const result = await framework.forgotPasswordRequest('client_id1', 'username1', 'response_type1', 'redirect_uri1', '');
+            const result = await framework.forgotPasswordRequest(
+                'client_id1',
+                'username1',
+                'response_type1',
+                'redirect_uri1',
+                '',
+                null);
             expect(result).to.be.true;
 
         });
