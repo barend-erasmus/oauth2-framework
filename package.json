@@ -9,9 +9,7 @@
     "test": "tsc & mocha ./src/**/*.test.js",
     "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js",
     "start": "tsc & node ./src/app.js",
-    "docs": "apidoc -i src/ -o apidoc/",
-    "lint": "tslint ./src/**/*.ts --exclude ./src/**/*.d.ts",
-    "deploy": "tsc & apidoc -i src/ -o apidoc/ & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js & ssh-deployer -f deploy.json --host developersworkspace.co.za --username username --password password --workspace ./"
+    "lint": "tslint ./src/**/*.ts --exclude ./src/**/*.d.ts"
   },
   "repository": {
     "type": "git",
