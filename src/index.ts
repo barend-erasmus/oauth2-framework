@@ -19,7 +19,7 @@ export class OAuth2Framework {
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
         verify: (client_id: string, username: string, request: express.Request) => Promise<boolean>,
-    }, public secret: string,
+    },          public secret: string,
     ) {
 
     }
@@ -271,8 +271,8 @@ export class OAuth2Framework {
     }
 
     public async resetPasswordRequest(token: string,
-        password: string,
-        request: express.Request): Promise<boolean> {
+                                      password: string,
+                                      request: express.Request): Promise<boolean> {
 
         const decodedToken: any = await this.decodeResetPasswordToken(token);
 
