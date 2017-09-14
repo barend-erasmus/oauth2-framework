@@ -501,7 +501,7 @@ describe('Tests', () => {
                     return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
                 },
                 validateCode: (code: string) => {
-                 return Promise.resolve(new Token(null, null, []));   
+                 return Promise.resolve(new Token(null, null, []));
                 },
                 generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
                     return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
@@ -509,7 +509,7 @@ describe('Tests', () => {
                 validateAccessToken: null,
             }, 'secret');
 
-            const code: string = await framework.authorizationRequest(
+            const code1: string = await framework.authorizationRequest(
                 'code',
                 'client_id',
                 'redirect_uri',
@@ -521,7 +521,7 @@ describe('Tests', () => {
 
             const accessToken: string = await framework.accessTokenRequest(
                 'authorization_code',
-                code,
+                code1,
                 'redirect_uri',
                 'client_id',
                 'client_secret',
@@ -618,7 +618,7 @@ describe('Tests', () => {
                     return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
                 },
                 validateAccessToken: (access_token: string) => {
-                    return Promise.resolve(null);   
+                    return Promise.resolve(null);
                 },
             }, null);
 
@@ -678,7 +678,7 @@ describe('Tests', () => {
                     return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
                 },
                 validateAccessToken: (access_token: string) => {
-                    return Promise.resolve(new Token(null, null, null));   
+                    return Promise.resolve(new Token(null, null, null));
                 },
             }, 'secret');
 

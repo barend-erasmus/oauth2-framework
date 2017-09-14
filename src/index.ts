@@ -6,7 +6,6 @@ import * as jsonwebtoken from 'jsonwebtoken';
 import { Client } from './models/client';
 import { Token } from './models/token';
 
-
 // Exports
 export { Client } from './models/client';
 export { Token } from './models/token';
@@ -26,7 +25,7 @@ export class OAuth2Framework {
         validateCode(code: string): Promise<Token>,
         generateAccessToken(client_id: string, username: string, scopes: string[]): Promise<string>,
         validateAccessToken(code: string): Promise<Token>,
-    }, public secret: string,
+    },          public secret: string,
     ) {
 
     }
@@ -251,8 +250,8 @@ export class OAuth2Framework {
     }
 
     public async resetPasswordRequest(token: string,
-        password: string,
-        request: express.Request): Promise<boolean> {
+                                      password: string,
+                                      request: express.Request): Promise<boolean> {
 
         const decodedToken: any = await this.decodeResetPasswordToken(token);
 
