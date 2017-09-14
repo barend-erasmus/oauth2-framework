@@ -4,9 +4,12 @@ import * as jsonwebtoken from 'jsonwebtoken';
 
 // Imports models
 import { Client } from './models/client';
+import { Token } from './models/token';
+
 
 // Exports
 export { Client } from './models/client';
+export { Token } from './models/token';
 export { OAuth2FrameworkRouter } from './router';
 
 export class OAuth2Framework {
@@ -19,7 +22,11 @@ export class OAuth2Framework {
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
         verify: (client_id: string, username: string, request: express.Request) => Promise<boolean>,
-    },          public secret: string,
+        generateCode(client_id: string, username: string, scopes: string[]): Promise<string>,
+        validateCode(code: string): Promise<Token>,
+        generateAccessToken(client_id: string, username: string, scopes: string[]): Promise<string>,
+        validateAccessToken(code: string): Promise<Token>,
+    }, public secret: string,
     ) {
 
     }
@@ -34,34 +41,35 @@ export class OAuth2Framework {
         password: string,
         request: express.Request): Promise<string> {
 
-        if (response_type !== 'code' && response_type !== 'token') {
-            throw new Error('Invalid response_type');
-        }
-
         const client: Client = await this.model.findClient(client_id, request);
 
-        if (!client) {
-            throw new Error('Invalid client_id');
-        }
+        if (response_type === 'code' || response_type === 'token') {
 
-        if (client.redirectUris.indexOf(redirect_uri) === -1) {
-            throw new Error('Invalid redirect_uri');
-        }
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
 
-        if (scopes.length !== 0 && scopes.filter((x) => client.allowedScopes.indexOf(x) === -1).length === 0) {
-            throw new Error('Invalid scopes');
-        }
+            if (client.redirectUris.indexOf(redirect_uri) === -1) {
+                throw new Error('Invalid redirect_uri');
+            }
 
-        const validCredentials: boolean = await this.model.validateCredentials(client_id, username, password, request);
+            if (scopes.length !== 0 && scopes.filter((x) => client.allowedScopes.indexOf(x) === -1).length !== 0) {
+                throw new Error('Invalid scopes');
+            }
 
-        if (!validCredentials) {
-            return null;
+            const validCredentials: boolean = await this.model.validateCredentials(client_id, username, password, request);
+
+            if (!validCredentials) {
+                return null;
+            }
         }
 
         if (response_type === 'code') {
-            return this.generateCode(client_id, username, scopes);
+            return this.model.generateCode(client_id, username, scopes);
         } else if (response_type === 'token') {
-            return this.generateAccessToken(client_id, username, scopes);
+            return this.model.generateAccessToken(client_id, username, scopes);
+        } else {
+            throw new Error('Invalid response_type');
         }
     }
 
@@ -76,18 +84,17 @@ export class OAuth2Framework {
         scopes: string[],
         request: express.Request): Promise<string> {
 
-        if (grant_type !== 'authorization_code' && grant_type !== 'password') {
-            throw new Error('Invalid grant_type');
-        }
-
         const client: Client = await this.model.findClient(client_id, request);
 
-        if (!client) {
-            throw new Error('Invalid client_id');
-        }
+        if (grant_type === 'authorization_code' || grant_type === 'password') {
 
-        if (client.redirectUris.indexOf(redirect_uri) === -1) {
-            throw new Error('Invalid redirect_uri');
+            if (!client) {
+                throw new Error('Invalid client_id');
+            }
+
+            if (client.redirectUris.indexOf(redirect_uri) === -1) {
+                throw new Error('Invalid redirect_uri');
+            }
         }
 
         if (grant_type === 'password') {
@@ -101,18 +108,12 @@ export class OAuth2Framework {
                 return null;
             }
 
-            return this.generateAccessToken(client_id, username, scopes);
-        }
+            return this.model.generateAccessToken(client_id, username, scopes);
+        } else if (grant_type === 'authorization_code') {
 
-        if (grant_type === 'authorization_code') {
+            const token: Token = await this.model.validateCode(code);
 
-            const decodedCode: any = await this.decodeJWT(code);
-
-            if (!decodedCode) {
-                throw new Error('Invalid code');
-            }
-
-            if (decodedCode.type !== 'code') {
+            if (!token) {
                 throw new Error('Invalid code');
             }
 
@@ -120,54 +121,33 @@ export class OAuth2Framework {
                 throw new Error('Invalid client_secret');
             }
 
-            return this.generateAccessToken(
-                decodedCode.client_id,
-                decodedCode.username,
-                decodedCode.scopes);
+            return this.model.generateAccessToken(
+                token.client_id,
+                token.username,
+                token.scopes);
+        } else {
+            throw new Error('Invalid grant_type');
         }
     }
 
     public async validateAccessToken(access_token: string): Promise<boolean> {
-        const decodedToken: any = await this.decodeJWT(access_token);
+        const token: Token = await this.model.validateAccessToken(access_token);
 
-        if (!decodedToken) {
-            return false;
-        }
-
-        if (decodedToken.type !== 'access-token') {
+        if (!token) {
             return false;
         }
 
         return true;
     }
 
-    public async decodeResetPasswordToken(token: string): Promise<any> {
+    public async decodeAccessToken(access_token: string): Promise<Token> {
+        const token: Token = await this.model.validateAccessToken(access_token);
 
-        const decodedToken: any = await this.decodeJWT(token);
-
-        if (!decodedToken) {
+        if (!token) {
             return null;
         }
 
-        if (decodedToken.type !== 'reset-password') {
-            return null;
-        }
-
-        return decodedToken;
-    }
-
-    public async decodeEmailVerificationToken(token: string): Promise<any> {
-        const decodedToken: any = await this.decodeJWT(token);
-
-        if (!decodedToken) {
-            return null;
-        }
-
-        if (decodedToken.type !== 'email-verification') {
-            return null;
-        }
-
-        return decodedToken;
+        return token;
     }
 
     public async forgotPasswordRequest(
@@ -271,8 +251,8 @@ export class OAuth2Framework {
     }
 
     public async resetPasswordRequest(token: string,
-                                      password: string,
-                                      request: express.Request): Promise<boolean> {
+        password: string,
+        request: express.Request): Promise<boolean> {
 
         const decodedToken: any = await this.decodeResetPasswordToken(token);
 
@@ -299,18 +279,33 @@ export class OAuth2Framework {
         return result;
     }
 
-    public decodeJWT(jwt: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            jsonwebtoken.verify(jwt, this.secret, (err: Error, decodedCode: any) => {
+    public async decodeResetPasswordToken(token: string): Promise<any> {
 
-                if (err) {
-                    resolve(null);
-                    return;
-                }
+        const decodedToken: any = await this.decodeJWT(token);
 
-                resolve(decodedCode);
-            });
-        });
+        if (!decodedToken) {
+            return null;
+        }
+
+        if (decodedToken.type !== 'reset-password') {
+            return null;
+        }
+
+        return decodedToken;
+    }
+
+    public async decodeEmailVerificationToken(token: string): Promise<any> {
+        const decodedToken: any = await this.decodeJWT(token);
+
+        if (!decodedToken) {
+            return null;
+        }
+
+        if (decodedToken.type !== 'email-verification') {
+            return null;
+        }
+
+        return decodedToken;
     }
 
     private generateResetPasswordToken(
@@ -341,31 +336,17 @@ export class OAuth2Framework {
             });
     }
 
-    private generateAccessToken(
-        client_id: string,
-        username: string,
-        scopes: string[]): string {
-        return jsonwebtoken.sign({
-            client_id,
-            scopes,
-            type: 'access-token',
-            username,
-        }, this.secret, {
-                expiresIn: '60m',
-            });
-    }
+    private decodeJWT(jwt: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            jsonwebtoken.verify(jwt, this.secret, (err: Error, decodedCode: any) => {
 
-    private generateCode(
-        client_id: string,
-        username: string,
-        scopes: string[]): string {
-        return jsonwebtoken.sign({
-            client_id,
-            scopes,
-            type: 'code',
-            username,
-        }, this.secret, {
-                expiresIn: '10m',
+                if (err) {
+                    resolve(null);
+                    return;
+                }
+
+                resolve(decodedCode);
             });
+        });
     }
 }

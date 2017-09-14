@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as path from 'path';
 
-import { Client, OAuth2Framework } from './index';
+import { Client, OAuth2Framework, Token } from './index';
 
 export function OAuth2FrameworkRouter(
     model: {
@@ -15,6 +15,10 @@ export function OAuth2FrameworkRouter(
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => Promise<boolean>,
         verify: (client_id: string, username: string, request: express.Request) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
+        generateCode(client_id: string, username: string, scopes: string[]): Promise<string>,
+        validateCode(code: string): Promise<Token>,
+        generateAccessToken(client_id: string, username: string, scopes: string[]): Promise<string>,
+        validateAccessToken(code: string): Promise<Token>,
     },
     loginPagePath: string,
     forgotPasswordPagePath: string,
@@ -179,7 +183,7 @@ export function OAuth2FrameworkRouter(
             const valid: boolean = await framework.validateAccessToken(access_token);
 
             if (valid) {
-                const decodedToken: string = await framework.decodeJWT(access_token);
+                const decodedToken: Token = await framework.decodeAccessToken(access_token);
 
                 res.json(decodedToken);
             } else {

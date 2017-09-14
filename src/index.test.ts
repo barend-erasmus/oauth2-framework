@@ -6,6 +6,7 @@ import 'mocha';
 
 import { OAuth2Framework } from './index';
 import { Client } from './models/client';
+import { Token } from './models/token';
 
 describe('Tests', () => {
 
@@ -14,24 +15,30 @@ describe('Tests', () => {
     describe('authorizationRequest', () => {
         it('should throw error given invalid response_type', async () => {
             framework = new OAuth2Framework({
-                findClient: null,
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, null, null, null));
+                },
                 register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.authorizationRequest(
                     'invalid response_type',
-                    'client_id1',
-                    'redirect_uri1',
-                    ['scope1', 'scope2'],
+                    'client_id',
+                    'redirect_uri',
+                    ['scope'],
                     'state',
-                    'username1',
-                    'password1',
+                    'username',
+                    'password',
                     null);
                 throw new Error('Expected Error');
             } catch (err) {
@@ -42,7 +49,7 @@ describe('Tests', () => {
         it('should return null given invalid credentials', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, ['scope'], ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -52,13 +59,17 @@ describe('Tests', () => {
                     return Promise.resolve(false);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             const code: string = await framework.authorizationRequest(
                 'code',
-                'client_id1',
-                'redirect_uri1',
-                ['scope1', 'scope2'],
+                'client_id',
+                'redirect_uri',
+                ['scope'],
                 'state',
                 'username1',
                 'password1',
@@ -78,17 +89,21 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.authorizationRequest(
                     'code',
                     'invalid client_id',
-                    'redirect_uri1',
-                    ['scope1', 'scope2'],
+                    'redirect_uri',
+                    ['scope'],
                     'state',
-                    'username1',
-                    'password1',
+                    'username',
+                    'password',
                     null);
                 throw new Error('Expected Error');
             } catch (err) {
@@ -99,7 +114,7 @@ describe('Tests', () => {
         it('should throw error given invalid redirect_uri', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -107,17 +122,21 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.authorizationRequest(
                     'code',
-                    'client_id1',
+                    'client_id',
                     'invalid redirect_uri',
-                    ['scope1', 'scope2'],
+                    ['scope'],
                     'state',
-                    'username1',
-                    'password1',
+                    'username',
+                    'password',
                     null);
                 throw new Error('Expected Error');
             } catch (err) {
@@ -125,10 +144,43 @@ describe('Tests', () => {
             }
         });
 
+        it('should throw error given invalid scopes', async () => {
+            framework = new OAuth2Framework({
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, ['scope'], ['redirect_uri'], null, null));
+                },
+                register: null,
+                resetPassword: null,
+                sendForgotPasswordEmail: null,
+                sendVerificationEmail: null,
+                validateCredentials: null,
+                verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
+            }, null);
+
+            try {
+                await framework.authorizationRequest(
+                    'code',
+                    'client_id',
+                    'redirect_uri',
+                    ['invalid-scope'],
+                    'state',
+                    'username',
+                    'password',
+                    null);
+                throw new Error('Expected Error');
+            } catch (err) {
+                expect(err.message).to.be.equal('Invalid scopes');
+            }
+        });
+
         it('Authorization Code Grant: should return code', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, ['scope'], ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -138,16 +190,22 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, 'secret');
 
             const code: string = await framework.authorizationRequest(
                 'code',
-                'client_id1',
-                'redirect_uri1',
-                ['scope1', 'scope2'],
+                'client_id',
+                'redirect_uri',
+                ['scope'],
                 'state',
-                'username1',
-                'password1',
+                'username',
+                'password',
                 null);
 
             expect(code).to.be.not.null;
@@ -156,7 +214,7 @@ describe('Tests', () => {
         it('Implicit Grant: should return access_token', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, ['scope'], ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -166,16 +224,22 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateAccessToken: null,
             }, 'secret');
 
             const accessToken: string = await framework.authorizationRequest(
                 'token',
-                'client_id1',
-                'redirect_uri1',
-                ['scope1', 'scope2'],
+                'client_id',
+                'redirect_uri',
+                ['scope'],
                 'state',
-                'username1',
-                'password1',
+                'username',
+                'password',
                 null);
 
             expect(accessToken).to.be.not.null;
@@ -185,22 +249,28 @@ describe('Tests', () => {
     describe('accessTokenRequest', () => {
         it('should throw error given invalid grant_type', async () => {
             framework = new OAuth2Framework({
-                findClient: null,
+                findClient: (client_id: string) => {
+                    return Promise.resolve(new Client(null, null, null, null, null, null, null));
+                },
                 register: null,
                 resetPassword: null,
                 sendForgotPasswordEmail: null,
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.accessTokenRequest(
                     'invalid grant_type',
-                    'code1',
-                    'redirect_uri1',
-                    'client_id1',
-                    'client_secret1',
+                    'code',
+                    'redirect_uri',
+                    'client_id',
+                    'client_secret',
                     null,
                     null,
                     null,
@@ -222,15 +292,19 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.accessTokenRequest(
                     'authorization_code',
-                    'code1',
-                    'redirect_uri1',
+                    'code',
+                    'redirect_uri',
                     'invalid client_id',
-                    'client_secret1',
+                    'client_secret',
                     null,
                     null,
                     null,
@@ -244,7 +318,7 @@ describe('Tests', () => {
         it('should throw error given invalid redirect_uri', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -252,15 +326,19 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.accessTokenRequest(
                     'authorization_code',
-                    'code1',
+                    'code',
                     'invalid redirect_uri',
-                    'client_id1',
-                    'client_secret1',
+                    'client_id',
+                    'client_secret',
                     null,
                     null,
                     null,
@@ -274,7 +352,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given invalid code', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -282,15 +360,21 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: (code: string) => {
+                    return Promise.resolve(null);
+                },
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.accessTokenRequest(
                     'authorization_code',
                     'invalid code',
-                    'redirect_uri1',
-                    'client_id1',
-                    'client_secret1',
+                    'redirect_uri',
+                    'client_id',
+                    'client_secret',
                     null,
                     null,
                     null,
@@ -304,7 +388,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given valid access token instead of valid code', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -314,25 +398,33 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: (code: string) => {
+                    return Promise.resolve(null);
+                },
+                generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateAccessToken: null,
             }, 'secret');
 
             try {
                 const accessToken: string = await framework.accessTokenRequest(
                     'password',
                     'code1',
-                    'redirect_uri1',
-                    'client_id1',
-                    'client_secret1',
-                    'username1',
-                    'password1',
+                    'redirect_uri',
+                    'client_id',
+                    'client_secret',
+                    'username',
+                    'password',
                     [],
                     null);
                 await framework.accessTokenRequest(
                     'authorization_code',
                     accessToken,
-                    'redirect_uri1',
-                    'client_id1',
-                    'client_secret1',
+                    'redirect_uri',
+                    'client_id',
+                    'client_secret',
                     null,
                     null,
                     null,
@@ -346,7 +438,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should throw error given invalid client_secret', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, [], ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, ['scope'], ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -356,23 +448,31 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateCode: (code: string) => {
+                    return Promise.resolve(new Token(null, null, null));
+                },
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, 'secret');
 
             try {
                 const code: string = await framework.authorizationRequest(
                     'code',
-                    'client_id1',
-                    'redirect_uri1',
-                    ['scope1', 'scope2'],
+                    'client_id',
+                    'redirect_uri',
+                    ['scope'],
                     'state',
-                    'username1',
-                    'password1',
+                    'username',
+                    'password',
                     null);
                 await framework.accessTokenRequest(
                     'authorization_code',
                     code,
-                    'redirect_uri1',
-                    'client_id1',
+                    'redirect_uri',
+                    'client_id',
                     'invalid client_secret',
                     null,
                     null,
@@ -387,7 +487,7 @@ describe('Tests', () => {
         it('Authorization Code Grant: should return access token', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, 'client_secret1', [], ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, 'client_secret', ['scope'], ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -397,24 +497,34 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateCode: (code: string) => {
+                 return Promise.resolve(new Token(null, null, []));   
+                },
+                generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateAccessToken: null,
             }, 'secret');
 
             const code: string = await framework.authorizationRequest(
                 'code',
-                'client_id1',
-                'redirect_uri1',
-                ['scope1', 'scope2'],
+                'client_id',
+                'redirect_uri',
+                ['scope'],
                 'state',
-                'username1',
-                'password1',
+                'username',
+                'password',
                 null);
 
             const accessToken: string = await framework.accessTokenRequest(
                 'authorization_code',
                 code,
-                'redirect_uri1',
-                'client_id1',
-                'client_secret1',
+                'redirect_uri',
+                'client_id',
+                'client_secret',
                 null,
                 null,
                 null,
@@ -426,7 +536,7 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return null given invalid credentials', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -436,16 +546,20 @@ describe('Tests', () => {
                     return Promise.resolve(false);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             const accessToken: string = await framework.accessTokenRequest(
                 'password',
                 'code1',
-                'redirect_uri1',
-                'client_id1',
-                'client_secret1',
-                'username1',
-                'password1',
+                'redirect_uri',
+                'client_id',
+                'client_secret',
+                'username',
+                'password',
                 [],
                 null);
 
@@ -455,7 +569,7 @@ describe('Tests', () => {
         it('Resource Owner Password Credentials Grant: should return access token given valid credentials', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, ['scope'], ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -465,17 +579,23 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateAccessToken: null,
             }, 'secret');
 
             const accessToken: string = await framework.accessTokenRequest(
                 'password',
                 'code1',
-                'redirect_uri1',
-                'client_id1',
-                'client_secret1',
-                'username1',
-                'password1',
-                [],
+                'redirect_uri',
+                'client_id',
+                'client_secret',
+                'username',
+                'password',
+                ['scope'],
                 null);
 
             expect(accessToken).to.be.not.null;
@@ -492,6 +612,14 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateAccessToken: (access_token: string) => {
+                    return Promise.resolve(null);   
+                },
             }, null);
 
             const result = await framework.validateAccessToken('invalid token');
@@ -501,7 +629,7 @@ describe('Tests', () => {
         it('should return false given code', function* () {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, 'client_secret1', null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, 'client_secret', null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -511,16 +639,20 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             const code: string = yield framework.authorizationRequest(
                 'code',
-                'client_id1',
-                'redirect_uri1',
-                ['scope1', 'scope2'],
+                'client_id',
+                'redirect_uri',
+                ['scope'],
                 'state',
-                'username1',
-                'password1',
+                'username',
+                'password',
                 null);
 
             const result = yield framework.validateAccessToken(code);
@@ -530,7 +662,7 @@ describe('Tests', () => {
         it('should return true given valid token', async () => {
             framework = new OAuth2Framework({
                 findClient: (client_id: string) => {
-                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri1'], null, null));
+                    return Promise.resolve(new Client(null, null, null, null, ['redirect_uri'], null, null));
                 },
                 register: null,
                 resetPassword: null,
@@ -540,16 +672,24 @@ describe('Tests', () => {
                     return Promise.resolve(true);
                 },
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: (client_id: string, username: string, scopes: string[]) => {
+                    return Promise.resolve(`${client_id}|${username}|${scopes.join(',')}`);
+                },
+                validateAccessToken: (access_token: string) => {
+                    return Promise.resolve(new Token(null, null, null));   
+                },
             }, 'secret');
 
             const accessToken: string = await framework.accessTokenRequest(
                 'password',
                 'code1',
-                'redirect_uri1',
-                'client_id1',
-                'client_secret1',
-                'username1',
-                'password1',
+                'redirect_uri',
+                'client_id',
+                'client_secret',
+                'username',
+                'password',
                 [],
                 null);
 
@@ -570,14 +710,18 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.forgotPasswordRequest(
                     'invalid client_id',
-                    'username1',
-                    'response_type1',
-                    'redirect_uri1',
+                    'username',
+                    'response_type',
+                    'redirect_uri',
                     '',
                     null);
                 throw new Error('Expected Error');
@@ -597,14 +741,18 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, null);
 
             try {
                 await framework.forgotPasswordRequest(
-                    'client_id1',
+                    'client_id',
                     'username1',
-                    'response_type1',
-                    'redirect_uri1',
+                    'response_type',
+                    'redirect_uri',
                     '',
                     null);
                 throw new Error('Expected Error');
@@ -626,13 +774,17 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, 'secret');
 
             const result = await framework.forgotPasswordRequest(
                 'client_id1',
                 'username1',
-                'response_type1',
-                'redirect_uri1',
+                'response_type',
+                'redirect_uri',
                 '',
                 null);
             expect(result).to.be.false;
@@ -652,13 +804,17 @@ describe('Tests', () => {
                 sendVerificationEmail: null,
                 validateCredentials: null,
                 verify: null,
+                generateCode: null,
+                validateCode: null,
+                generateAccessToken: null,
+                validateAccessToken: null,
             }, 'secret');
 
             const result = await framework.forgotPasswordRequest(
-                'client_id1',
+                'client_id',
                 'username1',
-                'response_type1',
-                'redirect_uri1',
+                'response_type',
+                'redirect_uri',
                 '',
                 null);
             expect(result).to.be.true;
