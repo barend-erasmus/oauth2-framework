@@ -18,44 +18,68 @@ The OAuth 2.0 authorization framework enables a third-party    application to ob
 
 ```javascript
 
-import { Client, OAuth2FrameworkRouter } from 'oauth2-framework';
+import { Client, OAuth2FrameworkRouter, Token } from 'oauth2-framework';
 
 const model: any = {
-    findClient: (client_id: string) => {
+    findClient: (client_id: string, request: express.Request) => {
         if (client_id === '0zyrWYATtw') {
             return Promise.resolve(new Client('0zyrWYATtw', 'x3h8CTB2Cj', [], ['http://example.com/callback'], true, true));
         } else {
             return Promise.resolve(null);
         }
     },
-    register: (client_id: string, emailAddress: string, username: string, password: string) => {
+    register: (client_id: string, emailAddress: string, username: string, password: string, request: express.Request) => {
         return Promise.resolve(true);
     },
-    resetPassword: (client_id: string, username: string, password: string) => {
+    resetPassword: (client_id: string, username: string, password: string, request: express.Request) => {
         return Promise.resolve(true);
     },
-    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
+    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string, request: express.Request) => {
         
         // TODO: Send email via STMP, SendGrid or Mandrill
 
         return Promise.resolve(true);
     },
-    sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => {
+    sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => {
 
         // TODO: Send email via STMP, SendGrid or Mandrill
 
         return Promise.resolve(true);
     },
-    validateCredentials: (client_id: string, username: string, password: string) => {
+    validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => {
         if (username.toLowerCase() === 'demo' && password === '123456') {
             return Promise.resolve(true);
         } else {
             return Promise.resolve(false);
         }
     },
-    verify: (client_id: string, username: string) => {
+    verify: (client_id: string, username: string, request: express.Request) => {
         return Promise.resolve(true);
     },
+    generateCode: (client_id: string, username: string, scopes: string[], request: express.Request) => {
+        const token: string = '...';
+
+        // Store token with details
+
+        return Promise.resolve(token);
+    },
+    validateCode: (code: string, request: express.Request) => {
+        const token: Token = new Token('client_id', 'username', []);
+
+        return token;
+    },
+    generateAccessToken: (client_id: string, username: string, scopes: string[], request: express.Request) => {
+        const token: string = '...';
+
+        // Store token with details
+
+        return Promise.resolve(token);
+    },
+    validateAccessToken: (code: string, request: express.Request) => {
+        const token: Token = new Token('client_id', 'username', []);
+
+        return token;
+    }
 };
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -107,6 +131,10 @@ The OAuth2 Framework Model consists of:
 * `sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => Promise<boolean` - Will be used to send the verification email and should return `true` on success and `false` on failure.
 * `validateCredentials: (client_id: string, username: string, password: string) => Promise<boolean>` - Will be used to validate a user's credentials and should return `true` if valid and `false` if not.
 * `verify: (client_id: string, username: string) => Promise<boolean>` - Will be used when user click on verification url.
+* `generateCode: (client_id: string, username: string, scopes: string[], request: express.Request) => Promise<string>` - 
+* `validateCode: (code: string, request: express.Request) => Promise<Token>` - 
+* `generateAccessToken: (client_id: string, username: string, scopes: string[], request: express.Request) => Promise<string>` - 
+* `validateAccessToken: (code: string, request: express.Request) => Promise<Token>` - 
 
 ## Template Flows
 

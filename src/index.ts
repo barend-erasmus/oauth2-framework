@@ -21,11 +21,11 @@ export class OAuth2Framework {
         sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => Promise<boolean>,
         validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
         verify: (client_id: string, username: string, request: express.Request) => Promise<boolean>,
-        generateCode(client_id: string, username: string, scopes: string[]): Promise<string>,
-        validateCode(code: string): Promise<Token>,
-        generateAccessToken(client_id: string, username: string, scopes: string[]): Promise<string>,
-        validateAccessToken(code: string): Promise<Token>,
-    },          public secret: string,
+        generateCode(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
+        validateCode(code: string, request: express.Request): Promise<Token>,
+        generateAccessToken(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
+        validateAccessToken(code: string, request: express.Request): Promise<Token>,
+    }, public secret: string,
     ) {
 
     }
@@ -64,9 +64,9 @@ export class OAuth2Framework {
         }
 
         if (response_type === 'code') {
-            return this.model.generateCode(client_id, username, scopes);
+            return this.model.generateCode(client_id, username, scopes, request);
         } else if (response_type === 'token') {
-            return this.model.generateAccessToken(client_id, username, scopes);
+            return this.model.generateAccessToken(client_id, username, scopes, request);
         } else {
             throw new Error('Invalid response_type');
         }
@@ -107,10 +107,10 @@ export class OAuth2Framework {
                 return null;
             }
 
-            return this.model.generateAccessToken(client_id, username, scopes);
+            return this.model.generateAccessToken(client_id, username, scopes, request);
         } else if (grant_type === 'authorization_code') {
 
-            const token: Token = await this.model.validateCode(code);
+            const token: Token = await this.model.validateCode(code, request);
 
             if (!token) {
                 throw new Error('Invalid code');
@@ -123,14 +123,15 @@ export class OAuth2Framework {
             return this.model.generateAccessToken(
                 token.client_id,
                 token.username,
-                token.scopes);
+                token.scopes,
+                request);
         } else {
             throw new Error('Invalid grant_type');
         }
     }
 
-    public async validateAccessToken(access_token: string): Promise<boolean> {
-        const token: Token = await this.model.validateAccessToken(access_token);
+    public async validateAccessToken(access_token: string, request: express.Request): Promise<boolean> {
+        const token: Token = await this.model.validateAccessToken(access_token, request);
 
         if (!token) {
             return false;
@@ -139,8 +140,8 @@ export class OAuth2Framework {
         return true;
     }
 
-    public async decodeAccessToken(access_token: string): Promise<Token> {
-        const token: Token = await this.model.validateAccessToken(access_token);
+    public async decodeAccessToken(access_token: string, request: express.Request): Promise<Token> {
+        const token: Token = await this.model.validateAccessToken(access_token, request);
 
         if (!token) {
             return null;
@@ -250,8 +251,8 @@ export class OAuth2Framework {
     }
 
     public async resetPasswordRequest(token: string,
-                                      password: string,
-                                      request: express.Request): Promise<boolean> {
+        password: string,
+        request: express.Request): Promise<boolean> {
 
         const decodedToken: any = await this.decodeResetPasswordToken(token);
 

@@ -152,7 +152,7 @@ export function OAuth2FrameworkRouter(
 
             const access_token = authorizationHeader.split(' ')[1];
 
-            const valid: boolean = await framework.validateAccessToken(access_token);
+            const valid: boolean = await framework.validateAccessToken(access_token, null);
 
             res.json({
                 valid,
@@ -180,10 +180,10 @@ export function OAuth2FrameworkRouter(
 
             const access_token = authorizationHeader.split(' ')[1];
 
-            const valid: boolean = await framework.validateAccessToken(access_token);
+            const valid: boolean = await framework.validateAccessToken(access_token, null);
 
             if (valid) {
-                const decodedToken: Token = await framework.decodeAccessToken(access_token);
+                const decodedToken: Token = await framework.decodeAccessToken(access_token, null);
 
                 res.json(decodedToken);
             } else {

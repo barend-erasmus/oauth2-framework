@@ -622,7 +622,7 @@ describe('Tests', () => {
                 },
             }, null);
 
-            const result = await framework.validateAccessToken('invalid token');
+            const result = await framework.validateAccessToken('invalid token', null);
             expect(result).to.be.false;
         });
 
@@ -655,7 +655,7 @@ describe('Tests', () => {
                 'password',
                 null);
 
-            const result = yield framework.validateAccessToken(code);
+            const result = yield framework.validateAccessToken(code, null);
             expect(result).to.be.false;
         });
 
@@ -693,7 +693,7 @@ describe('Tests', () => {
                 [],
                 null);
 
-            const result = await framework.validateAccessToken(accessToken);
+            const result = await framework.validateAccessToken(accessToken, null);
             expect(result).to.be.true;
         });
     });
