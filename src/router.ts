@@ -18,7 +18,7 @@ export function OAuth2FrameworkRouter(
         generateCode(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
         validateCode(code: string, request: express.Request): Promise<Token>,
         generateAccessToken(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
-        validateAccessToken(code: string, request: express.Request): Promise<Token>,
+        validateAccessToken(access_token: string, request: express.Request): Promise<Token>,
     },
     loginPagePath: string,
     forgotPasswordPagePath: string,

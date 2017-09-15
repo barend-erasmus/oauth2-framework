@@ -23,8 +23,7 @@
   "homepage": "https://github.com/barend-erasmus/oauth2-framework#readme",
   "dependencies": {
     "express": "^4.15.4",
-    "handlebars": "^4.0.10",
-    "jsonwebtoken": "^7.4.2"
+    "handlebars": "^4.0.10"
   },
   "devDependencies": {
     "@types/chai": "^4.0.2",
