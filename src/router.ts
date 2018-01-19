@@ -96,7 +96,18 @@ export function OAuth2FrameworkRouter(
                 res.redirect(`${req.query.redirect_uri}?access_token=${result}&state=${req.query.state}`);
             }
         } catch (err) {
-            res.status(500).send(err.message);
+
+            try {
+                const client: Client = await framework.model.findClient(req.query.client_id, req);
+
+                renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
+                    client,
+                    message: err.message,
+                    query: req.query,
+                }, 200);
+            } catch (err) {
+                res.status(500).send(err.message);
+            }
         }
     });
 
