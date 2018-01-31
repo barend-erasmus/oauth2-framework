@@ -1,24 +1,22 @@
-// Imports
 import * as express from 'express';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as path from 'path';
-
-import { Client, OAuth2Framework, Token } from './index';
+import { Client, OAuth2Framework, OAuth2FrameworkError, Token } from './index';
 
 export function OAuth2FrameworkRouter(
     model: {
-        findClient: (client_id: string, request: express.Request) => Promise<Client>,
-        register: (client_id: string, emailAddress: string, username: string, password: string, request: express.Request) => Promise<boolean>,
-        resetPassword: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
-        sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string, request: express.Request) => Promise<boolean>,
-        sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => Promise<boolean>,
-        verify: (client_id: string, username: string, request: express.Request) => Promise<boolean>,
-        validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => Promise<boolean>,
-        generateCode(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
-        validateCode(code: string, request: express.Request): Promise<Token>,
+        findClient(client_id: string, request: express.Request): Promise<Client>,
         generateAccessToken(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
+        generateCode(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
+        register(client_id: string, emailAddress: string, username: string, password: string, request: express.Request): Promise<boolean>,
+        resetPassword(client_id: string, username: string, password: string, request: express.Request): Promise<boolean>,
+        sendForgotPasswordEmail(client_id: string, username: string, resetPasswordUrl: string, request: express.Request): Promise<boolean>,
+        sendVerificationEmail(client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request): Promise<boolean>,
         validateAccessToken(access_token: string, request: express.Request): Promise<Token>,
+        validateCode(code: string, request: express.Request): Promise<Token>,
+        validateCredentials(client_id: string, username: string, password: string, request: express.Request): Promise<boolean>,
+        verify(client_id: string, username: string, request: express.Request): Promise<boolean>,
     },
     loginPagePath: string,
     forgotPasswordPagePath: string,
@@ -54,7 +52,7 @@ export function OAuth2FrameworkRouter(
             const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
@@ -63,7 +61,7 @@ export function OAuth2FrameworkRouter(
             }, 200);
 
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -81,15 +79,6 @@ export function OAuth2FrameworkRouter(
 
             const client: Client = await framework.model.findClient(req.query.client_id, req);
 
-            if (!result) {
-                renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
-                    client,
-                    message: 'Invalid login credentials',
-                    query: req.query,
-                }, 200);
-                return;
-            }
-
             if (req.query.response_type === 'code') {
                 res.redirect(`${req.query.redirect_uri}?code=${result}&state=${req.query.state}`);
             } else if (req.query.response_type === 'token') {
@@ -102,11 +91,11 @@ export function OAuth2FrameworkRouter(
 
                 renderPage(res, loginPagePath || path.join(__dirname, 'views/login.handlebars'), {
                     client,
-                    message: err.message,
+                    message: err.detailedMessage,
                     query: req.query,
                 }, 200);
             } catch (err) {
-                res.status(500).send(err.message);
+                res.status(500).send(err);
             }
         }
     });
@@ -142,7 +131,7 @@ export function OAuth2FrameworkRouter(
                 access_token: accessToken,
             });
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -155,21 +144,16 @@ export function OAuth2FrameworkRouter(
      */
     router.post('/validate', async (req, res) => {
         try {
-            const authorizationHeader: string = req.get('Authorization');
 
-            if (!authorizationHeader || authorizationHeader.split(' ')[0].toLowerCase() !== 'bearer') {
-                throw new Error('Invalid header');
-            }
+            const access_token: string = getAuthorizationToken(req);
 
-            const access_token = authorizationHeader.split(' ')[1];
-
-            const valid: boolean = await framework.validateAccessToken(access_token, null);
+            const valid: boolean = await framework.validateAccessToken(access_token, req);
 
             res.json({
                 valid,
             });
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -183,15 +167,9 @@ export function OAuth2FrameworkRouter(
     router.get('/user', async (req, res) => {
         try {
 
-            const authorizationHeader: string = req.get('Authorization');
+            const access_token: string = getAuthorizationToken(req);
 
-            if (!authorizationHeader || authorizationHeader.split(' ')[0].toLowerCase() !== 'bearer') {
-                throw new Error('Invalid header');
-            }
-
-            const access_token = authorizationHeader.split(' ')[1];
-
-            const valid: boolean = await framework.validateAccessToken(access_token, null);
+            const valid: boolean = await framework.validateAccessToken(access_token, req);
 
             if (valid) {
                 const decodedToken: Token = await framework.decodeAccessToken(access_token, null);
@@ -201,7 +179,7 @@ export function OAuth2FrameworkRouter(
                 res.json(null);
             }
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -212,7 +190,7 @@ export function OAuth2FrameworkRouter(
             const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             renderPage(res, forgotPasswordPagePath || path.join(__dirname, 'views/forgot-password.handlebars'), {
@@ -221,7 +199,7 @@ export function OAuth2FrameworkRouter(
             }, 200);
 
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -232,7 +210,7 @@ export function OAuth2FrameworkRouter(
             const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             try {
@@ -260,13 +238,13 @@ export function OAuth2FrameworkRouter(
             } catch (err) {
                 renderPage(res, forgotPasswordPagePath || path.join(__dirname, 'views/forgot-password.handlebars'), {
                     client,
-                    message: err.message,
+                    message: err.detailedMessage,
                     query: req.query,
                 }, 200);
             }
 
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -277,13 +255,13 @@ export function OAuth2FrameworkRouter(
             const decodedToken: any = await framework.decodeResetPasswordToken(req.query.token);
 
             if (!decodedToken) {
-                throw new Error('Invalid token');
+                throw new OAuth2FrameworkError('invalid_token', 'Invalid token');
             }
 
             const client: Client = await framework.model.findClient(decodedToken.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
@@ -291,7 +269,7 @@ export function OAuth2FrameworkRouter(
                 query: req.query,
             }, 200);
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -302,13 +280,13 @@ export function OAuth2FrameworkRouter(
             const decodedToken: any = await framework.decodeResetPasswordToken(req.query.token);
 
             if (!decodedToken) {
-                throw new Error('Invalid token');
+                throw new OAuth2FrameworkError('invalid_token', 'Invalid token');
             }
 
             const client: Client = await framework.model.findClient(decodedToken.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             try {
@@ -329,12 +307,12 @@ export function OAuth2FrameworkRouter(
             } catch (err) {
                 renderPage(res, resetPasswordPagePath || path.join(__dirname, 'views/reset-password.handlebars'), {
                     client,
-                    message: err.message,
+                    message: err.detailedMessage,
                     query: req.query,
                 }, 200);
             }
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -344,7 +322,7 @@ export function OAuth2FrameworkRouter(
             const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             renderPage(res, registerPagePath || path.join(__dirname, 'views/register.handlebars'), {
@@ -353,7 +331,7 @@ export function OAuth2FrameworkRouter(
             }, 200);
 
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -364,7 +342,7 @@ export function OAuth2FrameworkRouter(
             const client: Client = await framework.model.findClient(req.query.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             try {
@@ -394,13 +372,13 @@ export function OAuth2FrameworkRouter(
             } catch (err) {
                 renderPage(res, registerPagePath || path.join(__dirname, 'views/register.handlebars'), {
                     client,
-                    message: err.message,
+                    message: err.detailedMessage,
                     query: req.query,
                 }, 200);
             }
 
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
@@ -410,13 +388,13 @@ export function OAuth2FrameworkRouter(
             const decodedToken: any = await framework.decodeEmailVerificationToken(req.query.token);
 
             if (!decodedToken) {
-                throw new Error('Invalid token');
+                throw new OAuth2FrameworkError('invalid_token', 'Invalid token');
             }
 
             const client: Client = await framework.model.findClient(decodedToken.client_id, req);
 
             if (!client) {
-                throw new Error('Invalid client_id');
+                throw new OAuth2FrameworkError('invalid_client_id', 'Invalid client id');
             }
 
             const result: boolean = await framework.emailVerificationRequest(req.query.token, req);
@@ -436,11 +414,23 @@ export function OAuth2FrameworkRouter(
             }
 
         } catch (err) {
-            res.status(500).send(err.message);
+            res.status(500).send(err);
         }
     });
 
     return router;
+}
+
+function getAuthorizationToken(req: express.Request): string {
+    const authorizationHeader: string = req.get('Authorization');
+
+    const splittedAuthorizationHeader: string[] = authorizationHeader.split(' ');
+
+    if (splittedAuthorizationHeader.length !== 2 && splittedAuthorizationHeader[0].toLowerCase() === 'bearer') {
+            throw new OAuth2FrameworkError('invalid_authorization_header', 'Invalid header');
+        }
+
+    return splittedAuthorizationHeader[1];
 }
 
 function renderPage(res: express.Response, htmlFile: string, data: any, status: number): void {

@@ -1,4 +1,3 @@
-// Imports
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as path from 'path';
@@ -9,11 +8,10 @@ import { Client, OAuth2Framework, OAuth2FrameworkRouter } from './index';
 const argv = yargs.argv;
 const app = express();
 
-// Configures middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use('/api/docs', express.static(path.join(__dirname, './../apidoc')));
-app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov-report')));
+// app.use('/api/docs', express.static(path.join(__dirname, './../apidoc')));
+// app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov-report')));
 
 const model: any = {
     findClient: (client_id: string) => {
