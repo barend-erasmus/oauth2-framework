@@ -427,8 +427,8 @@ function getAuthorizationToken(req: express.Request): string {
     const splittedAuthorizationHeader: string[] = authorizationHeader.split(' ');
 
     if (splittedAuthorizationHeader.length !== 2 && splittedAuthorizationHeader[0].toLowerCase() === 'bearer') {
-            throw new OAuth2FrameworkError('invalid_authorization_header', 'Invalid header');
-        }
+        throw new OAuth2FrameworkError('invalid_authorization_header', 'Invalid header');
+    }
 
     return splittedAuthorizationHeader[1];
 }
