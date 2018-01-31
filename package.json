@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "test": "tsc & mocha --timeout 5000 ./dist/**/*.test.js",
-    "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./dist/**/*.test.js",
+    "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./dist ./dist/**/*.test.js",
     "start": "tsc & node ./dist/app.js",
     "lint": "tslint ./src/**/*.ts --exclude ./src/**/*.d.ts"
   },

@@ -37,6 +37,18 @@ describe('Tests', () => {
             } catch (err) {
                 expect(err.code).to.be.eq('invalid_grant_type');
             }
+
+        });
+
+        it('should throw error given invalid client id', async () => {
+
+            try {
+                await framework.accessTokenRequest('authorization_code', null, 'invalid_client_id', null, null, null, null, null, null);
+                throw new Error('Expected Exception');
+            } catch (err) {
+                expect(err.code).to.be.eq('invalid_client_id');
+            }
+            
         });
     });
 });
