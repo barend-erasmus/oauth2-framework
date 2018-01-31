@@ -5,9 +5,9 @@
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "scripts": {
-    "test": "tsc & mocha ./src/**/*.test.js",
-    "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./src/**/*.test.js",
-    "start": "tsc & node ./src/app.js",
+    "test": "tsc & mocha --timeout 5000 ./dist/**/*.test.js",
+    "coverage": "tsc & istanbul cover node_modules/mocha/bin/_mocha --root ./src ./dist/**/*.test.js",
+    "start": "tsc & node ./dist/app.js",
     "lint": "tslint ./src/**/*.ts --exclude ./src/**/*.d.ts"
   },
   "repository": {
