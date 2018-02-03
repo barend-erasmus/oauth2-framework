@@ -24,26 +24,27 @@ const model: any = {
                 ['http://example.com/callback'],
                 true,
                 true));
+
         } else {
             return Promise.resolve(null);
         }
     },
-    generateAccessToken: (client_id: string, username: string, scopes: string[], request: express.Request) => {
+    generateAccessToken: (client_id: string, userName: string, scopes: string[], request: express.Request) => {
         return Promise.resolve(null);
     },
-    generateCode: (client_id: string, username: string, scopes: string[], request: express.Request) => {
+    generateCode: (client_id: string, userName: string, scopes: string[], request: express.Request) => {
         return Promise.resolve(null);
     },
-    register: (client_id: string, emailAddress: string, username: string, password: string, request: express.Request) => {
+    register: (client_id: string, emailAddress: string, userName: string, password: string, request: express.Request) => {
         return Promise.resolve(null);
     },
-    resetPassword: (client_id: string, username: string, password: string, request: express.Request) => {
+    resetPassword: (client_id: string, userName: string, password: string, request: express.Request) => {
         return Promise.resolve(null);
     },
-    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string, request: express.Request) => {
+    sendForgotPasswordEmail: (client_id: string, userName: string, resetPasswordUrl: string, request: express.Request) => {
         return Promise.resolve(null);
     },
-    sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => {
+    sendVerificationEmail: (client_id: string, emailAddress: string, userName: string, verificationUrl: string, request: express.Request) => {
         return Promise.resolve(null);
     },
     validateAccessToken: (access_token: string, request: express.Request) => {
@@ -52,10 +53,10 @@ const model: any = {
     validateCode: (code: string, request: express.Request) => {
         return Promise.resolve(null);
     },
-    validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => {
+    validateCredentials: (client_id: string, userName: string, password: string, request: express.Request) => {
         return Promise.resolve(true);
     },
-    verify: (client_id: string, username: string, request: express.Request) => {
+    verify: (client_id: string, userName: string, request: express.Request) => {
         return Promise.resolve(null);
     },
 };

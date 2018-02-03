@@ -14,16 +14,16 @@ export class OAuth2Framework {
 
     constructor(public model: {
         findClient(client_id: string, request: Request): Promise<Client>,
-        generateAccessToken(client_id: string, username: string, scopes: string[], request: Request): Promise<string>,
-        generateCode(client_id: string, username: string, scopes: string[], request: Request): Promise<string>,
-        register(client_id: string, emailAddress: string, username: string, password: string, request: Request): Promise<boolean>,
-        resetPassword(client_id: string, username: string, password: string, request: Request): Promise<boolean>,
-        sendForgotPasswordEmail(client_id: string, username: string, resetPasswordUrl: string, request: Request): Promise<boolean>,
-        sendVerificationEmail(client_id: string, emailAddress: string, username: string, verificationUrl: string, request: Request): Promise<boolean>,
+        generateAccessToken(client_id: string, userName: string, scopes: string[], request: Request): Promise<string>,
+        generateCode(client_id: string, userName: string, scopes: string[], request: Request): Promise<string>,
+        register(client_id: string, emailAddress: string, userName: string, password: string, request: Request): Promise<boolean>,
+        resetPassword(client_id: string, userName: string, password: string, request: Request): Promise<boolean>,
+        sendForgotPasswordEmail(client_id: string, userName: string, resetPasswordUrl: string, request: Request): Promise<boolean>,
+        sendVerificationEmail(client_id: string, emailAddress: string, userName: string, verificationUrl: string, request: Request): Promise<boolean>,
         validateAccessToken(access_token: string, request: Request): Promise<Token>,
         validateCode(code: string, request: Request): Promise<Token>,
-        validateCredentials(client_id: string, username: string, password: string, request: Request): Promise<boolean>,
-        verify(client_id: string, username: string, request: Request): Promise<boolean>,
+        validateCredentials(client_id: string, userName: string, password: string, request: Request): Promise<boolean>,
+        verify(client_id: string, userName: string, request: Request): Promise<boolean>,
     },          public secret: string,
     ) {
 
@@ -35,7 +35,7 @@ export class OAuth2Framework {
         redirect_uri: string,
         client_id: string,
         client_secret: string,
-        username: string,
+        userName: string,
         password: string,
         scopes: string[],
         request: Request): Promise<string> {
@@ -52,20 +52,20 @@ export class OAuth2Framework {
 
             return this.model.generateAccessToken(
                 token.client_id,
-                token.username,
+                token.userName,
                 token.scopes,
                 request);
 
         } else if (grant_type === 'password') {
             const validCredentials: boolean = await this.model.validateCredentials(
                 client_id,
-                username,
+                userName,
                 password,
                 request);
 
             this.throwIfInvalidCredentials(validCredentials);
 
-            return this.model.generateAccessToken(client_id, username, scopes, request);
+            return this.model.generateAccessToken(client_id, userName, scopes, request);
 
         }
     }
@@ -76,7 +76,7 @@ export class OAuth2Framework {
         redirect_uri: string,
         scopes: string[],
         state: string,
-        username: string,
+        userName: string,
         password: string,
         request: Request): Promise<string> {
 
@@ -84,15 +84,15 @@ export class OAuth2Framework {
 
         const client: Client = await this.findClientAndValidate(client_id, redirect_uri, scopes, request);
 
-        const validCredentials: boolean = await this.model.validateCredentials(client_id, username, password, request);
+        const validCredentials: boolean = await this.model.validateCredentials(client_id, userName, password, request);
 
         this.throwIfInvalidCredentials(validCredentials);
 
         switch (response_type) {
             case 'code':
-                return this.model.generateCode(client_id, username, scopes, request);
+                return this.model.generateCode(client_id, userName, scopes, request);
             case 'token':
-                return this.model.generateAccessToken(client_id, username, scopes, request);
+                return this.model.generateAccessToken(client_id, userName, scopes, request);
         }
     }
 
@@ -118,7 +118,7 @@ export class OAuth2Framework {
 
     public async forgotPasswordRequest(
         client_id: string,
-        username: string,
+        userName: string,
         response_type: string,
         redirect_uri: string,
         state: string,
@@ -133,13 +133,13 @@ export class OAuth2Framework {
         }
 
         const returnUrl = `authorize?response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
-        const resetPasswordToken = this.generateResetPasswordToken(client_id, username, returnUrl);
+        const resetPasswordToken = this.generateResetPasswordToken(client_id, userName, returnUrl);
 
         const resetPasswordUrl = `/reset-password?token=${resetPasswordToken}`;
 
         const result = await this.model.sendForgotPasswordEmail(
             client_id,
-            username,
+            userName,
             resetPasswordUrl,
             request);
 
@@ -163,7 +163,7 @@ export class OAuth2Framework {
 
         const result = await this.model.verify(
             decodedToken.client_id,
-            decodedToken.username,
+            decodedToken.userName,
             request);
 
         return result;
@@ -172,7 +172,7 @@ export class OAuth2Framework {
     public async registerRequest(
         client_id: string,
         emailAddress: string,
-        username: string,
+        userName: string,
         password: string,
         response_type: string,
         redirect_uri: string,
@@ -190,17 +190,17 @@ export class OAuth2Framework {
 
         const emailVerificationToken = this.generateEmailVerificationToken(
             client_id,
-            username,
+            userName,
             returnUrl);
 
         const emailVerificationUrl = `/email-verification?token=${emailVerificationToken}`;
 
-        const result = await this.model.register(client_id, emailAddress, username, password, request);
+        const result = await this.model.register(client_id, emailAddress, userName, password, request);
 
         if (result) {
             const emailResult = await this.model.sendVerificationEmail(
                 client_id, emailAddress,
-                username,
+                userName,
                 emailVerificationUrl,
                 request);
         }
@@ -228,7 +228,7 @@ export class OAuth2Framework {
 
         const result = await this.model.resetPassword(
             decodedToken.client_id,
-            decodedToken.username,
+            decodedToken.userName,
             password,
             request);
 
@@ -278,7 +278,8 @@ export class OAuth2Framework {
         });
     }
 
-    private async findClientAndValidate(client_id: string, redirect_uri: string, scopes: string[], request: Request): Promise<Client> {
+    private async findClientAndValidate(client_id: string, redirect_uri: string, scopes: string[], request:
+    Request): Promise<Client> {
         const client: Client = await this.model.findClient(client_id, request);
 
         this.throwIfClientNull(client);
@@ -292,13 +293,13 @@ export class OAuth2Framework {
 
     private generateEmailVerificationToken(
         client_id: string,
-        username: string,
+        userName: string,
         return_url: string): string {
         return jsonwebtoken.sign({
             client_id,
             return_url,
             type: 'email-verification',
-            username,
+            userName,
         }, this.secret, {
                 expiresIn: '60m',
             });
@@ -306,13 +307,13 @@ export class OAuth2Framework {
 
     private generateResetPasswordToken(
         client_id: string,
-        username: string,
+        userName: string,
         return_url: string): string {
         return jsonwebtoken.sign({
             client_id,
             return_url,
             type: 'reset-password',
-            username,
+            userName,
         }, this.secret, {
                 expiresIn: '60m',
             });
