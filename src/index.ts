@@ -1,4 +1,5 @@
 import * as express from 'express';
+import { Express, Request, Response, Router } from 'Express';
 import * as jsonwebtoken from 'jsonwebtoken';
 import { Client } from './models/client';
 import { OAuth2FrameworkError } from './models/oauth2-error';
@@ -12,17 +13,17 @@ export { OAuth2FrameworkError } from './models/oauth2-error';
 export class OAuth2Framework {
 
     constructor(public model: {
-        findClient(client_id: string, request: express.Request): Promise<Client>,
-        generateAccessToken(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
-        generateCode(client_id: string, username: string, scopes: string[], request: express.Request): Promise<string>,
-        register(client_id: string, emailAddress: string, username: string, password: string, request: express.Request): Promise<boolean>,
-        resetPassword(client_id: string, username: string, password: string, request: express.Request): Promise<boolean>,
-        sendForgotPasswordEmail(client_id: string, username: string, resetPasswordUrl: string, request: express.Request): Promise<boolean>,
-        sendVerificationEmail(client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request): Promise<boolean>,
-        validateAccessToken(access_token: string, request: express.Request): Promise<Token>,
-        validateCode(code: string, request: express.Request): Promise<Token>,
-        validateCredentials(client_id: string, username: string, password: string, request: express.Request): Promise<boolean>,
-        verify(client_id: string, username: string, request: express.Request): Promise<boolean>,
+        findClient(client_id: string, request: Request): Promise<Client>,
+        generateAccessToken(client_id: string, username: string, scopes: string[], request: Request): Promise<string>,
+        generateCode(client_id: string, username: string, scopes: string[], request: Request): Promise<string>,
+        register(client_id: string, emailAddress: string, username: string, password: string, request: Request): Promise<boolean>,
+        resetPassword(client_id: string, username: string, password: string, request: Request): Promise<boolean>,
+        sendForgotPasswordEmail(client_id: string, username: string, resetPasswordUrl: string, request: Request): Promise<boolean>,
+        sendVerificationEmail(client_id: string, emailAddress: string, username: string, verificationUrl: string, request: Request): Promise<boolean>,
+        validateAccessToken(access_token: string, request: Request): Promise<Token>,
+        validateCode(code: string, request: Request): Promise<Token>,
+        validateCredentials(client_id: string, username: string, password: string, request: Request): Promise<boolean>,
+        verify(client_id: string, username: string, request: Request): Promise<boolean>,
     },          public secret: string,
     ) {
 
@@ -37,23 +38,13 @@ export class OAuth2Framework {
         username: string,
         password: string,
         scopes: string[],
-        request: express.Request): Promise<string> {
+        request: Request): Promise<string> {
 
         this.throwIfInvalidGrantType(grant_type);
 
         const client: Client = await this.findClientAndValidate(client_id, redirect_uri, scopes, request);
 
-        if (grant_type === 'password') {
-            const validCredentials: boolean = await this.model.validateCredentials(
-                client_id,
-                username,
-                password,
-                request);
-
-            this.throwIfInvalidCredentials(validCredentials);
-
-            return this.model.generateAccessToken(client_id, username, scopes, request);
-        } else if (grant_type === 'authorization_code') {
+        if (grant_type === 'authorization_code') {
 
             this.throwIfClientDoesNotMatchClientSecret(client, client_secret);
 
@@ -64,6 +55,18 @@ export class OAuth2Framework {
                 token.username,
                 token.scopes,
                 request);
+
+        } else if (grant_type === 'password') {
+            const validCredentials: boolean = await this.model.validateCredentials(
+                client_id,
+                username,
+                password,
+                request);
+
+            this.throwIfInvalidCredentials(validCredentials);
+
+            return this.model.generateAccessToken(client_id, username, scopes, request);
+
         }
     }
 
@@ -75,7 +78,7 @@ export class OAuth2Framework {
         state: string,
         username: string,
         password: string,
-        request: express.Request): Promise<string> {
+        request: Request): Promise<string> {
 
         this.throwIfInvalidResponseType(response_type);
 
@@ -93,7 +96,7 @@ export class OAuth2Framework {
         }
     }
 
-    public async validateAccessToken(access_token: string, request: express.Request): Promise<boolean> {
+    public async validateAccessToken(access_token: string, request: Request): Promise<boolean> {
         const token: Token = await this.model.validateAccessToken(access_token, request);
 
         if (!token) {
@@ -103,7 +106,7 @@ export class OAuth2Framework {
         return true;
     }
 
-    public async decodeAccessToken(access_token: string, request: express.Request): Promise<Token> {
+    public async decodeAccessToken(access_token: string, request: Request): Promise<Token> {
         const token: Token = await this.model.validateAccessToken(access_token, request);
 
         if (!token) {
@@ -119,7 +122,7 @@ export class OAuth2Framework {
         response_type: string,
         redirect_uri: string,
         state: string,
-        request: express.Request): Promise<boolean> {
+        request: Request): Promise<boolean> {
 
         const client: Client = await this.model.findClient(client_id, request);
 
@@ -143,7 +146,7 @@ export class OAuth2Framework {
         return result;
     }
 
-    public async emailVerificationRequest(token: string, request: express.Request): Promise<boolean> {
+    public async emailVerificationRequest(token: string, request: Request): Promise<boolean> {
         const decodedToken: any = await this.decodeEmailVerificationToken(token);
 
         if (!decodedToken) {
@@ -174,7 +177,7 @@ export class OAuth2Framework {
         response_type: string,
         redirect_uri: string,
         state: string,
-        request: express.Request): Promise<boolean> {
+        request: Request): Promise<boolean> {
         const client: Client = await this.model.findClient(client_id, request);
 
         this.throwIfClientNull(client);
@@ -207,12 +210,12 @@ export class OAuth2Framework {
 
     public async resetPasswordRequest(token: string,
                                       password: string,
-                                      request: express.Request): Promise<boolean> {
+                                      request: Request): Promise<boolean> {
 
         const decodedToken: any = await this.decodeResetPasswordToken(token);
 
         if (!decodedToken) {
-             throw new OAuth2FrameworkError('invalid_token', 'Invalid token');
+            throw new OAuth2FrameworkError('invalid_token', 'Invalid token');
         }
 
         const client: Client = await this.model.findClient(decodedToken.client_id, request);
@@ -275,7 +278,7 @@ export class OAuth2Framework {
         });
     }
 
-    private async findClientAndValidate(client_id: string, redirect_uri: string, scopes: string[], request: express.Request): Promise<Client> {
+    private async findClientAndValidate(client_id: string, redirect_uri: string, scopes: string[], request: Request): Promise<Client> {
         const client: Client = await this.model.findClient(client_id, request);
 
         this.throwIfClientNull(client);
@@ -329,7 +332,7 @@ export class OAuth2Framework {
 
     private throwIfClientDoesNotMatchClientSecret(client: Client, client_secret: string): void {
         if (client.secret !== client_secret) {
-            throw new OAuth2FrameworkError('invalid_secret', 'Invalid client_secret');
+            throw new OAuth2FrameworkError('invalid_client_secret', 'Invalid client secret');
         }
     }
 

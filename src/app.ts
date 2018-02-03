@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 // app.use('/api/coverage', express.static(path.join(__dirname, './../coverage/lcov-report')));
 
 const model: any = {
-    findClient: (client_id: string) => {
+    findClient: (client_id: string, request: express.Request) => {
         if (client_id === '0zyrWYATtw') {
             return Promise.resolve(new Client(
                 'Demo Application',
@@ -28,27 +28,35 @@ const model: any = {
             return Promise.resolve(null);
         }
     },
-    register: (client_id: string, emailAddress: string, username: string, password: string) => {
-        if (validEmailAddress(emailAddress)) {
-            return Promise.resolve(true);
-        } else {
-            throw new Error('Invalid Email Address');
-        }
+    generateAccessToken: (client_id: string, username: string, scopes: string[], request: express.Request) => {
+        return Promise.resolve(null);
     },
-    resetPassword: (client_id: string, username: string, password: string) => {
+    generateCode: (client_id: string, username: string, scopes: string[], request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    register: (client_id: string, emailAddress: string, username: string, password: string, request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    resetPassword: (client_id: string, username: string, password: string, request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string, request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string, request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    validateAccessToken: (access_token: string, request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    validateCode: (code: string, request: express.Request) => {
+        return Promise.resolve(null);
+    },
+    validateCredentials: (client_id: string, username: string, password: string, request: express.Request) => {
         return Promise.resolve(true);
     },
-    sendForgotPasswordEmail: (client_id: string, username: string, resetPasswordUrl: string) => {
-        return Promise.resolve(true);
-    },
-    sendVerificationEmail: (client_id: string, emailAddress: string, username: string, verificationUrl: string) => {
-        return Promise.resolve(true);
-    },
-    validateCredentials: (client_id: string, username: string, password: string) => {
-        return Promise.resolve(true);
-    },
-    verify: (client_id: string, username: string) => {
-        return Promise.resolve(true);
+    verify: (client_id: string, username: string, request: express.Request) => {
+        return Promise.resolve(null);
     },
 };
 
@@ -75,6 +83,13 @@ app.use('/', OAuth2FrameworkRouter(
     null,
     'qUKNuGEUFO',
 ));
+
+app.get('/', (req: express.Request, res: express.Response) => {
+    const client_id: string = '0zyrWYATtw';
+    const redirect_uri: string = 'http://example.com/callback';
+
+    res.redirect(`/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&state=custom-state`);
+});
 
 app.listen(argv.port || 3000, () => {
     console.log(`listening on port ${argv.port || 3000}`);
