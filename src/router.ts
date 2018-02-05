@@ -1,5 +1,4 @@
 import * as express from 'express';
-import { Express, Request, Response, Router } from 'express';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as path from 'path';
@@ -7,17 +6,17 @@ import { Client, OAuth2Framework, OAuth2FrameworkError, Token } from './index';
 
 export function OAuth2FrameworkRouter(
     model: {
-        findClient(client_id: string, request: Request): Promise<Client>,
-        generateAccessToken(client_id: string, userName: string, scopes: string[], request: Request): Promise<string>,
-        generateCode(client_id: string, userName: string, scopes: string[], request: Request): Promise<string>,
-        register(client_id: string, emailAddress: string, userName: string, password: string, request: Request): Promise<boolean>,
-        resetPassword(client_id: string, userName: string, password: string, request: Request): Promise<boolean>,
-        sendForgotPasswordEmail(client_id: string, userName: string, resetPasswordUrl: string, request: Request): Promise<boolean>,
-        sendVerificationEmail(client_id: string, emailAddress: string, userName: string, verificationUrl: string, request: Request): Promise<boolean>,
-        validateAccessToken(access_token: string, request: Request): Promise<Token>,
-        validateCode(code: string, request: Request): Promise<Token>,
-        validateCredentials(client_id: string, userName: string, password: string, request: Request): Promise<boolean>,
-        verify(client_id: string, userName: string, request: Request): Promise<boolean>,
+        findClient(client_id: string, request: express.Request): Promise<Client>,
+        generateAccessToken(client_id: string, userName: string, scopes: string[], request: express.Request): Promise<string>,
+        generateCode(client_id: string, userName: string, scopes: string[], request: express.Request): Promise<string>,
+        register(client_id: string, emailAddress: string, userName: string, password: string, request: express.Request): Promise<boolean>,
+        resetPassword(client_id: string, userName: string, password: string, request: express.Request): Promise<boolean>,
+        sendForgotPasswordEmail(client_id: string, userName: string, resetPasswordUrl: string, request: express.Request): Promise<boolean>,
+        sendVerificationEmail(client_id: string, emailAddress: string, userName: string, verificationUrl: string, request: express.Request): Promise<boolean>,
+        validateAccessToken(access_token: string, request: express.Request): Promise<Token>,
+        validateCode(code: string, request: express.Request): Promise<Token>,
+        validateCredentials(client_id: string, userName: string, password: string, request: express.Request): Promise<boolean>,
+        verify(client_id: string, userName: string, request: express.Request): Promise<boolean>,
     },
     loginPagePath: string,
     forgotPasswordPagePath: string,
@@ -30,7 +29,7 @@ export function OAuth2FrameworkRouter(
     emailVerficationSuccessPagePath: string,
     emailVerficationFailurePagePath: string,
     secret: string,
-): Router {
+): express.Router {
     const router = express.Router();
 
     const framework: OAuth2Framework = new OAuth2Framework(model, secret);
@@ -422,7 +421,7 @@ export function OAuth2FrameworkRouter(
     return router;
 }
 
-function getAuthorizationToken(req: Request): string {
+function getAuthorizationToken(req: express.Request): string {
     const authorizationHeader: string = req.get('Authorization');
 
     const splittedAuthorizationHeader: string[] = authorizationHeader.split(' ');
@@ -434,7 +433,7 @@ function getAuthorizationToken(req: Request): string {
     return splittedAuthorizationHeader[1];
 }
 
-function renderPage(res: Response, htmlFile: string, data: any, status: number): void {
+function renderPage(res: express.Response, htmlFile: string, data: any, status: number): void {
 
     fs.readFile(htmlFile, 'utf8', (err: Error, html: string) => {
         if (err) {
